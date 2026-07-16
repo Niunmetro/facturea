@@ -1,4 +1,4 @@
-import type { Cliente, DatosApp, Emisor, FacturaGuardada } from './types';
+import type { Cliente, DatosApp, Emisor, FacturaGuardada, LineaFactura } from './types';
 
 export const LIMITE_FREE = 5;
 
@@ -35,13 +35,55 @@ function esFormaDatosApp(obj: unknown): obj is DatosApp {
   return true;
 }
 
+function esObjetoPersona(obj: unknown): obj is { nombre: string; nif: string; direccion: string } {
+  if (typeof obj !== 'object' || obj === null) return false;
+  const p = obj as Record<string, unknown>;
+  return typeof p.nombre === 'string' && typeof p.nif === 'string' && typeof p.direccion === 'string';
+}
+
+function esFormaCliente(obj: unknown): obj is Cliente {
+  return esObjetoPersona(obj);
+}
+
+function esFormaLinea(obj: unknown): obj is LineaFactura {
+  if (typeof obj !== 'object' || obj === null) return false;
+  const l = obj as Record<string, unknown>;
+  if (typeof l.concepto !== 'string') return false;
+  if (typeof l.cantidad !== 'number' || !Number.isFinite(l.cantidad)) return false;
+  if (typeof l.precioUnitario !== 'number' || !Number.isFinite(l.precioUnitario)) return false;
+  if (typeof l.ivaPct !== 'number') return false;
+  if (typeof l.recargoPct !== 'number') return false;
+  return true;
+}
+
+function esFormaFactura(obj: unknown): obj is FacturaGuardada {
+  if (typeof obj !== 'object' || obj === null) return false;
+  const f = obj as Record<string, unknown>;
+  if (typeof f.numero !== 'string') return false;
+  if (typeof f.fechaEmision !== 'string') return false;
+  if (typeof f.fechaVencimiento !== 'string') return false;
+  if (!esObjetoPersona(f.emisor)) return false;
+  if (!esObjetoPersona(f.cliente)) return false;
+  if (!Array.isArray(f.lineas) || !f.lineas.every(esFormaLinea)) return false;
+  if (typeof f.retencionIrpfPct !== 'number') return false;
+  return true;
+}
+
+function sanearDatos(datos: DatosApp): DatosApp {
+  return {
+    ...datos,
+    clientes: datos.clientes.filter(esFormaCliente),
+    facturas: datos.facturas.filter(esFormaFactura),
+  };
+}
+
 export function cargarDatos(): DatosApp {
   const raw = leerRaw();
   if (raw === null) return datosVacios();
   try {
     const parsed = JSON.parse(raw);
     if (!esFormaDatosApp(parsed)) return datosVacios();
-    return parsed;
+    return sanearDatos(parsed);
   } catch {
     return datosVacios();
   }
@@ -124,6 +166,6 @@ export function importarJSON(json: string): { ok: boolean; motivo?: string } {
     return { ok: false, motivo: 'formato' };
   }
 
-  guardarDatos(parsed);
+  guardarDatos(sanearDatos(parsed));
   return { ok: true };
 }
