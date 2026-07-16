@@ -3,11 +3,13 @@ import { montarFormulario } from './ui/formulario';
 import { montarHistorial } from './ui/historial';
 import { montarPro } from './ui/pro';
 import { calcularFactura } from './core/factura';
-import { siguienteNumero } from './core/numeracion';
+import { peekNumero, consumirNumero } from './core/contador';
+import { validarFacturaParaImprimir } from './core/validacion';
 import { renderFacturaHTML } from './ui/factura-vista';
-import { guardarFactura, listarFacturas, cargarEmisor, guardarEmisor } from './core/almacen';
+import { guardarFactura, cargarEmisor, guardarEmisor } from './core/almacen';
 import { reintentarVerificacion } from './core/licencia';
-import { formatearEuros } from './core/formato';
+import { formatearEuros, formatearFechaEs } from './core/formato';
+import { PRO_URL, PRECIO_PRO } from './config';
 import type { FacturaGuardada } from './core/types';
 
 function elemento<T extends HTMLElement>(id: string): T {
@@ -30,6 +32,14 @@ function anioDesdeFecha(fecha: string): number {
   return Number.isFinite(anio) && anio > 0 ? anio : new Date().getFullYear();
 }
 
+function hoyIso(): string {
+  const ahora = new Date();
+  const anio = ahora.getFullYear();
+  const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+  const dia = String(ahora.getDate()).padStart(2, '0');
+  return `${anio}-${mes}-${dia}`;
+}
+
 function datosADatosFormulario(f: FacturaGuardada): DatosFormulario {
   return {
     emisor: f.emisor,
@@ -41,6 +51,14 @@ function datosADatosFormulario(f: FacturaGuardada): DatosFormulario {
     ...(f.formaPago !== undefined ? { formaPago: f.formaPago } : {}),
   };
 }
+
+const MAPEO_FALTAS: { patron: RegExp; legend: string; label: string }[] = [
+  { patron: /nombre del emisor/i, legend: 'Emisor', label: 'Nombre / Razón social' },
+  { patron: /NIF del emisor/i, legend: 'Emisor', label: 'NIF' },
+  { patron: /nombre del cliente/i, legend: 'Cliente', label: 'Nombre / Razón social' },
+  { patron: /fecha de emision/i, legend: 'Datos de la factura', label: 'Fecha de emisión' },
+  { patron: /linea con concepto/i, legend: 'Líneas de factura', label: 'Concepto' },
+];
 
 function iniciar(): void {
   const zonaFormulario = elemento<HTMLElement>('zona-formulario');
@@ -61,7 +79,107 @@ function iniciar(): void {
   importeTotal.className = 'barra-total-importe';
   barraTotal.insertBefore(importeTotal, barraTotal.firstChild);
 
+  const btnNuevaFactura = document.createElement('button');
+  btnNuevaFactura.type = 'button';
+  btnNuevaFactura.textContent = 'Nueva factura';
+  barraTotal.insertBefore(btnNuevaFactura, btnGuardar);
+
+  const contenedorApp = zonaFormulario.parentElement ?? document.body;
+
+  const avisos = document.createElement('div');
+  avisos.id = 'avisos';
+  avisos.className = 'avisos';
+  avisos.setAttribute('aria-live', 'polite');
+  avisos.setAttribute('role', 'status');
+  avisos.hidden = true;
+  contenedorApp.insertBefore(avisos, zonaFormulario);
+
+  const ctaProDescarga = document.createElement('div');
+  ctaProDescarga.className = 'cta-pro-descarga';
+  ctaProDescarga.hidden = true;
+  const ctaProEnlace = document.createElement('a');
+  ctaProEnlace.href = PRO_URL;
+  ctaProEnlace.target = '_blank';
+  ctaProEnlace.rel = 'noopener noreferrer';
+  ctaProEnlace.textContent = `Hazte Pro (${PRECIO_PRO}) y elimina la marca de agua`;
+  const ctaProCerrar = document.createElement('button');
+  ctaProCerrar.type = 'button';
+  ctaProCerrar.textContent = '×';
+  ctaProCerrar.setAttribute('aria-label', 'Cerrar aviso');
+  ctaProCerrar.addEventListener('click', () => {
+    ctaProDescarga.hidden = true;
+  });
+  ctaProDescarga.appendChild(ctaProEnlace);
+  ctaProDescarga.appendChild(ctaProCerrar);
+  contenedorApp.insertBefore(ctaProDescarga, zonaHistorial);
+
+  function mostrarAviso(mensaje: string): void {
+    avisos.innerHTML = '';
+    avisos.hidden = false;
+    const p = document.createElement('p');
+    p.textContent = mensaje;
+    avisos.appendChild(p);
+  }
+
+  function buscarCampoPorFieldsetYLabel(legendTexto: string, labelTexto: string): HTMLElement | null {
+    const fieldsets = Array.from(zonaFormulario.querySelectorAll('fieldset'));
+    for (const fieldset of fieldsets) {
+      const legend = fieldset.querySelector('legend');
+      if (legend?.textContent !== legendTexto) continue;
+      const labels = Array.from(fieldset.querySelectorAll('label'));
+      for (const label of labels) {
+        if (label.textContent === labelTexto) {
+          const forId = label.getAttribute('for');
+          if (forId) {
+            const campo = document.getElementById(forId);
+            if (campo) return campo;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  function enfocarPrimerCampoConFallo(faltas: string[]): void {
+    for (const falta of faltas) {
+      const mapeo = MAPEO_FALTAS.find((m) => m.patron.test(falta));
+      const campo = mapeo ? buscarCampoPorFieldsetYLabel(mapeo.legend, mapeo.label) : null;
+      if (campo) {
+        campo.focus();
+        return;
+      }
+    }
+  }
+
+  function mostrarFaltas(faltas: string[]): void {
+    avisos.innerHTML = '';
+    avisos.hidden = false;
+    const titulo = document.createElement('p');
+    titulo.textContent = 'Antes de imprimir, corrige lo siguiente:';
+    avisos.appendChild(titulo);
+    const lista = document.createElement('ul');
+    for (const falta of faltas) {
+      const li = document.createElement('li');
+      li.textContent = falta;
+      lista.appendChild(li);
+    }
+    avisos.appendChild(lista);
+    enfocarPrimerCampoConFallo(faltas);
+  }
+
+  function limpiarAvisos(): void {
+    avisos.innerHTML = '';
+    avisos.hidden = true;
+  }
+
+  function mostrarCtaPro(): void {
+    if (proAPI.esPro()) return;
+    ctaProDescarga.hidden = false;
+  }
+
   let numeroCargado: string | null = null;
+  let numeroConsumido: string | null = null;
+  let permitirSobrescritura = false;
   let facturaActual: FacturaGuardada | null = null;
 
   const proAPI = montarPro(zonaPro, () => actualizarVista());
@@ -70,12 +188,20 @@ function iniciar(): void {
     esPro: () => proAPI.esPro(),
     onCargar: (f) => {
       numeroCargado = f.numero;
+      numeroConsumido = null;
+      permitirSobrescritura = false;
       formularioAPI.cargarDatos(datosADatosFormulario(f));
+      limpiarAvisos();
+      ctaProDescarga.hidden = true;
       actualizarVista();
     },
     onDuplicar: (f) => {
       numeroCargado = null;
+      numeroConsumido = null;
+      permitirSobrescritura = false;
       formularioAPI.cargarDatos(datosADatosFormulario(f));
+      limpiarAvisos();
+      ctaProDescarga.hidden = true;
       actualizarVista();
     },
   });
@@ -85,7 +211,8 @@ function iniciar(): void {
     guardarEmisor(datos.emisor);
 
     const resultado = calcularFactura(datos.lineas, datos.retencionIrpfPct);
-    const numero = numeroCargado ?? siguienteNumero(listarFacturas(), anioDesdeFecha(datos.fechaEmision));
+    const anio = anioDesdeFecha(datos.fechaEmision);
+    const numero = numeroCargado ?? numeroConsumido ?? peekNumero(anio);
 
     const factura: FacturaGuardada = {
       numero,
@@ -110,11 +237,25 @@ function iniciar(): void {
 
   const formularioAPI = montarFormulario(zonaFormulario, () => actualizarVista());
 
+  const datosIniciales = formularioAPI.leerDatos();
   const emisorGuardado = cargarEmisor();
-  if (emisorGuardado) {
+  formularioAPI.cargarDatos({
+    ...datosIniciales,
+    emisor: emisorGuardado ?? datosIniciales.emisor,
+    fechaEmision: hoyIso(),
+  });
+
+  btnNuevaFactura.addEventListener('click', () => {
+    formularioAPI.limpiar();
     const datos = formularioAPI.leerDatos();
-    formularioAPI.cargarDatos({ ...datos, emisor: emisorGuardado });
-  }
+    formularioAPI.cargarDatos({ ...datos, fechaEmision: hoyIso() });
+    numeroCargado = null;
+    numeroConsumido = null;
+    permitirSobrescritura = false;
+    limpiarAvisos();
+    ctaProDescarga.hidden = true;
+    actualizarVista();
+  });
 
   btnGuardar.addEventListener('click', () => {
     if (!facturaActual) {
@@ -122,9 +263,34 @@ function iniciar(): void {
     }
     if (!facturaActual) return;
 
+    if (numeroCargado !== null && !permitirSobrescritura) {
+      const sobrescribir = window.confirm(
+        `La factura ${facturaActual.numero} ya esta en el historial. Aceptar para sobrescribirla, cancelar para guardarla como una factura nueva (duplicada).`
+      );
+      if (sobrescribir) {
+        permitirSobrescritura = true;
+      } else {
+        const anio = anioDesdeFecha(facturaActual.fechaEmision);
+        numeroConsumido = consumirNumero(anio);
+        numeroCargado = null;
+        actualizarVista();
+      }
+    }
+
+    if (!facturaActual) return;
+
+    if (numeroCargado === null && numeroConsumido === null) {
+      const anio = anioDesdeFecha(facturaActual.fechaEmision);
+      numeroConsumido = consumirNumero(anio);
+      actualizarVista();
+    }
+
+    if (!facturaActual) return;
+
     const resultado = guardarFactura(facturaActual, proAPI.esPro());
     if (!resultado.ok) {
       if (resultado.motivo === 'limite') {
+        mostrarAviso('Has alcanzado el limite de facturas del plan gratuito. Pasa a Pro para guardar mas facturas.');
         historialAPI.refrescar();
         zonaHistorial.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
@@ -132,11 +298,49 @@ function iniciar(): void {
     }
 
     numeroCargado = facturaActual.numero;
+    permitirSobrescritura = true;
+    mostrarAviso(`Factura ${facturaActual.numero} guardada (emitida el ${formatearFechaEs(facturaActual.fechaEmision)}).`);
     historialAPI.refrescar();
   });
 
   btnDescargar.addEventListener('click', () => {
+    if (!facturaActual) {
+      actualizarVista();
+    }
+    if (!facturaActual) return;
+
+    const validacion = validarFacturaParaImprimir({
+      emisor: { nombre: facturaActual.emisor.nombre, nif: facturaActual.emisor.nif },
+      cliente: { nombre: facturaActual.cliente.nombre },
+      fechaEmision: facturaActual.fechaEmision,
+      lineas: facturaActual.lineas.map((linea) => ({
+        concepto: linea.concepto,
+        precioUnitario: linea.precioUnitario,
+      })),
+    });
+
+    if (!validacion.ok) {
+      mostrarFaltas(validacion.faltas);
+      return;
+    }
+    limpiarAvisos();
+
+    if (numeroCargado === null && numeroConsumido === null) {
+      const anio = anioDesdeFecha(facturaActual.fechaEmision);
+      numeroConsumido = consumirNumero(anio);
+      actualizarVista();
+    }
+
     window.print();
+    mostrarCtaPro();
+  });
+
+  window.addEventListener('storage', (evento) => {
+    if (evento.key && evento.key.startsWith('facturea:contador:')) {
+      if (numeroCargado === null && numeroConsumido === null) {
+        actualizarVista();
+      }
+    }
   });
 
   actualizarVista();
