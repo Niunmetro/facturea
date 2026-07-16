@@ -21,11 +21,9 @@ export function calcularFactura(
 
   const ivaPcts = Array.from(basesPorIva.keys()).sort((a, b) => a - b);
 
-  let totalIvaRaw = 0;
   const desgloseIva: DesgloseIva[] = ivaPcts.map((ivaPct) => {
     const baseRaw = basesPorIva.get(ivaPct)!;
     const cuotaRaw = (baseRaw * ivaPct) / 100;
-    totalIvaRaw += cuotaRaw;
     return {
       ivaPct,
       base: round2(baseRaw),
@@ -33,21 +31,26 @@ export function calcularFactura(
     };
   });
 
+  const totalIva = round2(desgloseIva.reduce((acc, d) => acc + d.cuota, 0));
+
   let totalRecargoRaw = 0;
   for (const linea of lineas) {
     const importeLinea = linea.cantidad * linea.precioUnitario;
     totalRecargoRaw += (importeLinea * linea.recargoPct) / 100;
   }
 
+  const baseImponible = round2(baseImponibleRaw);
+  const totalRecargo = round2(totalRecargoRaw);
   const retencionRaw = (baseImponibleRaw * retencionIrpfPct) / 100;
-  const totalRaw = baseImponibleRaw + totalIvaRaw + totalRecargoRaw - retencionRaw;
+  const retencion = round2(retencionRaw);
+  const total = round2(baseImponible + totalIva + totalRecargo - retencion);
 
   return {
-    baseImponible: round2(baseImponibleRaw),
+    baseImponible,
     desgloseIva,
-    totalIva: round2(totalIvaRaw),
-    totalRecargo: round2(totalRecargoRaw),
-    retencion: round2(retencionRaw),
-    total: round2(totalRaw),
+    totalIva,
+    totalRecargo,
+    retencion,
+    total,
   };
 }
