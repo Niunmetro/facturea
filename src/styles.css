@@ -1,0 +1,167 @@
+/* Facturea — tema claro, mobile-first */
+
+:root {
+  --color-fondo: #f7f8fa;
+  --color-superficie: #ffffff;
+  --color-texto: #1a1d23;
+  --color-texto-suave: #565d6b;
+  --color-borde: #dde1e7;
+  --color-primario: #1a56db;
+  --color-primario-oscuro: #123a99;
+  --color-foco: #1a56db;
+  --altura-barra-total: 3.5rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  line-height: 1.5;
+  padding-bottom: calc(var(--altura-barra-total) + 1rem);
+}
+
+h1, h2, h3 {
+  line-height: 1.25;
+}
+
+a {
+  color: var(--color-primario);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-foco);
+  outline-offset: 2px;
+}
+
+.cabecera {
+  padding: 1.5rem 1rem 1rem;
+  text-align: center;
+}
+
+.cabecera h1 {
+  margin: 0 0 0.25rem;
+}
+
+.cabecera p {
+  margin: 0;
+  color: var(--color-texto-suave);
+}
+
+.hueco-anuncio {
+  min-height: 1px;
+  margin: 0 auto;
+  max-width: 60rem;
+}
+
+#app {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+#zona-formulario,
+#zona-vista,
+#zona-historial,
+#zona-pro {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.contenido-seo {
+  max-width: 42rem;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.contenido-seo ul {
+  padding-left: 1.25rem;
+}
+
+.faq dt {
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.faq dd {
+  margin-left: 0;
+  color: var(--color-texto-suave);
+}
+
+/* Barra total: fija en la parte inferior en móvil */
+.barra-total {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  min-height: var(--altura-barra-total);
+  background: var(--color-superficie);
+  border-top: 1px solid var(--color-borde);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.barra-total button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-borde);
+  background: var(--color-primario);
+  color: #fff;
+  cursor: pointer;
+}
+
+.barra-total button:hover {
+  background: var(--color-primario-oscuro);
+}
+
+@media (min-width: 48rem) {
+  .barra-total {
+    position: sticky;
+    justify-content: flex-end;
+  }
+
+  .barra-total button {
+    flex: none;
+  }
+
+  body {
+    padding-bottom: 1rem;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .factura-print,
+  .factura-print * {
+    visibility: visible;
+  }
+
+  .factura-print {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+}

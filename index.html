@@ -5,9 +5,201 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Facturea — Facturas de autónomo con IVA e IRPF, gratis</title>
     <meta name="description" content="Crea facturas de autónomo en tu navegador: IVA, retención de IRPF, numeración automática y PDF. Sin registro y sin que tus datos salgan de tu equipo." />
+    <link rel="canonical" href="https://niunmetro.github.io/facturea/" />
+
+    <meta property="og:title" content="Facturea — Facturas de autónomo con IVA e IRPF, gratis" />
+    <meta property="og:description" content="Crea facturas de autónomo en tu navegador: IVA, retención de IRPF, numeración automática y PDF. Sin registro y sin que tus datos salgan de tu equipo." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://niunmetro.github.io/facturea/" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Facturea — Facturas de autónomo con IVA e IRPF, gratis" />
+    <meta name="twitter:description" content="Crea facturas de autónomo en tu navegador: IVA, retención de IRPF, numeración automática y PDF. Sin registro y sin que tus datos salgan de tu equipo." />
+
+    <link rel="stylesheet" href="/src/styles.css" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "¿Qué IVA debo poner en mi factura de autónomo?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "El tipo general es 21%. Hay un tipo reducido del 10% (por ejemplo, hostelería o transporte de viajeros) y uno superreducido del 4% (bienes de primera necesidad como alimentos básicos, libros o medicamentos). Algunas actividades están exentas de IVA (0%), como ciertos servicios educativos o sanitarios."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Cuándo aplico el 7% de IRPF y cuándo el 15%?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "El 7% de retención de IRPF se aplica durante el año de inicio de actividad y los dos siguientes, siempre que en el año anterior no hayas ejercido ninguna actividad profesional. Pasado ese periodo, o si ya venías facturando, la retención general es del 15%."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Qué datos debe llevar obligatoriamente una factura?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Número y serie correlativos, fecha de expedición, datos fiscales completos (nombre, NIF y domicilio) de emisor y destinatario, descripción de la operación, base imponible, tipo y cuota de IVA aplicados, y en su caso el tipo y la cuota de retención de IRPF, además del total a pagar."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Es obligatorio numerar las facturas de forma correlativa?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Sí. La normativa exige series de numeración correlativas dentro de cada ejercicio, sin huecos ni repeticiones. Puedes usar varias series (por ejemplo, para rectificativas) pero cada una debe mantener su propio orden correlativo."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Cómo se calcula el total de una factura con IVA e IRPF?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Se parte de la base imponible, se suma el IVA (base × tipo de IVA) y se resta la retención de IRPF (base × tipo de IRPF). El resultado es el total a cobrar: Total = Base + Cuota de IVA − Retención de IRPF."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Necesito un programa especial para hacer facturas como autónomo?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No es obligatorio usar un software concreto, pero la factura debe cumplir los requisitos legales de contenido y numeración. Herramientas como Facturea generan el documento correcto en tu propio navegador, sin necesidad de instalar nada ni enviar tus datos a un servidor."
+            }
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
-    <div id="app"></div>
+    <header class="cabecera">
+      <h1>Facturea</h1>
+      <p>Facturas de autónomo con IVA e IRPF, directamente en tu navegador.</p>
+    </header>
+
+    <div id="ad-top" class="hueco-anuncio">
+      <!-- AdSense: pegar aquí el snippet de anuncio (unidad "top") -->
+    </div>
+
+    <main id="app">
+      <section id="zona-formulario" aria-label="Formulario de factura"></section>
+      <section id="zona-vista" aria-label="Vista previa de la factura"></section>
+      <section id="zona-historial" aria-label="Historial de facturas"></section>
+      <section id="zona-pro" aria-label="Funciones Pro"></section>
+    </main>
+
+    <div id="barra-total" class="barra-total">
+      <button id="btn-guardar" type="button">Guardar</button>
+      <button id="btn-descargar" type="button">Descargar PDF</button>
+    </div>
+
+    <div id="ad-bottom" class="hueco-anuncio">
+      <!-- AdSense: pegar aquí el snippet de anuncio (unidad "bottom") -->
+    </div>
+
+    <article class="contenido-seo">
+      <h2>Cómo hacer una factura de autónomo en España</h2>
+
+      <h3>IRPF: ¿7% o 15%?</h3>
+      <p>
+        Como autónomo que presta servicios profesionales, tus facturas suelen llevar una
+        retención de IRPF a cuenta del IRPF del cliente. La retención reducida del
+        <strong>7%</strong> se aplica durante el ejercicio en que inicias la actividad y los
+        dos siguientes, siempre que no hayas realizado actividades profesionales en el año
+        anterior al inicio. Superado ese plazo, o si ya facturabas con anterioridad, la
+        retención pasa a ser del <strong>15%</strong>, el tipo general.
+      </p>
+
+      <h3>Tipos de IVA aplicables</h3>
+      <p>
+        El IVA en España tiene cuatro situaciones posibles según la operación:
+      </p>
+      <ul>
+        <li><strong>21% (general):</strong> la mayoría de bienes y servicios.</li>
+        <li><strong>10% (reducido):</strong> hostelería, transporte de viajeros, algunos alimentos.</li>
+        <li><strong>4% (superreducido):</strong> productos de primera necesidad, pan, libros, medicamentos.</li>
+        <li><strong>0% (exento):</strong> servicios educativos, sanitarios y otras actividades exentas por ley.</li>
+      </ul>
+
+      <h3>Qué debe llevar una factura legalmente</h3>
+      <p>Toda factura debe incluir, como mínimo:</p>
+      <ul>
+        <li>Número y serie correlativos.</li>
+        <li>Fecha de expedición.</li>
+        <li>Nombre o razón social, NIF y domicilio de quien emite y de quien recibe.</li>
+        <li>Descripción de la operación (concepto).</li>
+        <li>Base imponible.</li>
+        <li>Tipo y cuota de IVA aplicados.</li>
+        <li>Tipo y cuota de retención de IRPF, si procede.</li>
+        <li>Importe total a pagar.</li>
+      </ul>
+
+      <h3>Ejemplo numérico completo</h3>
+      <p>
+        Un diseñador autónomo factura 1.000 € de base por un servicio, con IVA general del
+        21% y retención de IRPF del 15%:
+      </p>
+      <ul>
+        <li>Base imponible: 1.000,00 €</li>
+        <li>IVA (21% de 1.000 €): 210,00 €</li>
+        <li>Retención de IRPF (15% de 1.000 €): −150,00 €</li>
+        <li><strong>Total a cobrar: 1.000,00 + 210,00 − 150,00 = 1.060,00 €</strong></li>
+      </ul>
+
+      <h2>Preguntas frecuentes</h2>
+      <dl class="faq">
+        <dt>¿Qué IVA debo poner en mi factura de autónomo?</dt>
+        <dd>
+          El tipo general es 21%. Hay un tipo reducido del 10% (por ejemplo, hostelería o
+          transporte de viajeros) y uno superreducido del 4% (bienes de primera necesidad
+          como alimentos básicos, libros o medicamentos). Algunas actividades están exentas
+          de IVA (0%), como ciertos servicios educativos o sanitarios.
+        </dd>
+
+        <dt>¿Cuándo aplico el 7% de IRPF y cuándo el 15%?</dt>
+        <dd>
+          El 7% de retención de IRPF se aplica durante el año de inicio de actividad y los
+          dos siguientes, siempre que en el año anterior no hayas ejercido ninguna actividad
+          profesional. Pasado ese periodo, o si ya venías facturando, la retención general es
+          del 15%.
+        </dd>
+
+        <dt>¿Qué datos debe llevar obligatoriamente una factura?</dt>
+        <dd>
+          Número y serie correlativos, fecha de expedición, datos fiscales completos
+          (nombre, NIF y domicilio) de emisor y destinatario, descripción de la operación,
+          base imponible, tipo y cuota de IVA aplicados, y en su caso el tipo y la cuota de
+          retención de IRPF, además del total a pagar.
+        </dd>
+
+        <dt>¿Es obligatorio numerar las facturas de forma correlativa?</dt>
+        <dd>
+          Sí. La normativa exige series de numeración correlativas dentro de cada ejercicio,
+          sin huecos ni repeticiones. Puedes usar varias series (por ejemplo, para
+          rectificativas) pero cada una debe mantener su propio orden correlativo.
+        </dd>
+
+        <dt>¿Cómo se calcula el total de una factura con IVA e IRPF?</dt>
+        <dd>
+          Se parte de la base imponible, se suma el IVA (base × tipo de IVA) y se resta la
+          retención de IRPF (base × tipo de IRPF). El resultado es el total a cobrar: Total =
+          Base + Cuota de IVA − Retención de IRPF.
+        </dd>
+
+        <dt>¿Necesito un programa especial para hacer facturas como autónomo?</dt>
+        <dd>
+          No es obligatorio usar un software concreto, pero la factura debe cumplir los
+          requisitos legales de contenido y numeración. Herramientas como Facturea generan el
+          documento correcto en tu propio navegador, sin necesidad de instalar nada ni enviar
+          tus datos a un servidor.
+        </dd>
+      </dl>
+    </article>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
