@@ -271,6 +271,9 @@ export function montarFormulario(root: HTMLElement, onChange: () => void): Formu
     const cantidad = crearCampoNumerico(wrapper, 'Cantidad', onChange);
     const precioUnitario = crearCampoNumerico(wrapper, 'Precio unitario', onChange);
     const ivaPct = crearSelect(wrapper, 'IVA', IVA_OPCIONES, '%', onChange, { 0: 'Exenta/No sujeta' });
+    // El caso comun del autonomo es el 21%: una linea nueva NO debe nacer "Exenta" (ademas
+    // dispararia el campo de motivo de exencion sin que el usuario haya elegido nada).
+    ivaPct.value = '21';
     const recargoPct = crearSelect(wrapper, 'Recargo de equivalencia', RECARGO_OPCIONES, '%', onChange);
 
     const { grupo: motivoExencionGrupo, input: motivoExencion } = crearCampoTextoConSugerencias(

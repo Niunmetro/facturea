@@ -1,0 +1,33 @@
+Facturea v2: corrección de los hallazgos de una auditoría fiscal/UX/SEO/conversión externa sobre el producto YA construido (todo el código existe y sus 69 tests pasan; NO rompas los tests actuales salvo donde un hallazgo exija cambiar el comportamiento congelado — en ese caso actualiza el test con el caso nuevo). NO añadas dependencias npm ni toques package.json. Vanilla TS + Vite + Vitest.
+
+LOTE A — LEGAL Y POSICIONAMIENTO (lo más importante):
+A1. VERI*FACTU (RD 1007/2023): el producto NO es un sistema informático de facturación certificado. Reposicionar TODO el copy como "generador de PLANTILLAS de factura (documentos)": index.html (title/description/H1/FAQ/JSON-LD) pasa de "haz tu factura legal" a "plantilla de factura de autónomo con IVA e IRPF" (que además es la keyword de más volumen). Añadir un aviso legal visible y digno (sección propia + línea en el pie): "Facturea genera documentos de factura a partir de tus datos. No es un sistema de facturación certificado VERI*FACTU ni un registro de facturación; comprueba tus obligaciones (RD 1007/2023) o consulta a tu gestoría. Eres responsable del contenido y conservación de tus facturas." Retirar las 2 frases "Herramientas como Facturea generan el documento correcto…" del FAQ y JSON-LD.
+A2. Exención de IVA: exención ≠ tipo 0%. En el selector de IVA la opción 0 pasa a llamarse "Exenta/No sujeta"; si alguna línea la usa, la UI exige un campo "motivo" (datalist con sugerencias: "Operación exenta art. 20 LIVA", "Inversión del sujeto pasivo art. 84.Uno.2º LIVA", "No sujeta art. 69 LIVA — cliente UE") y la factura impresa muestra ese motivo bajo el desglose; en el desglose la fila se etiqueta "Exento" (sin "%"). Nuevo campo motivoExencion en el tipo de la factura + test.
+A3. IRPF bien explicado: la retención es a cuenta del IRPF DEL AUTÓNOMO QUE EMITE (el cliente la ingresa en Hacienda en su nombre). Corregirlo en los 3 sitios (sección indexable, FAQ HTML y FAQPage JSON-LD, siempre coherentes).
+A4. Campo opcional "fecha de operación" (si difiere de la de expedición, RD 1619/2012 art. 6.1.i): tipo, formulario y factura impresa.
+
+LOTE B — NUMERACIÓN CORRELATIVA DE VERDAD:
+B1. Contador persistente por serie/año en localStorage ("facturea:contador:<año>") INDEPENDIENTE del historial: se consume (incrementa) al DESCARGAR PDF y al GUARDAR (lo que ocurra primero para esa factura); borrar facturas NUNCA lo decrementa. Releerlo de localStorage justo antes de asignar número y escuchar el evento "storage" para que dos pestañas abiertas no dupliquen (documentar en un comentario que sin backend la garantía es best-effort). Tests: imprimir sin guardar consume número; borrar la última no reutiliza; cambio de año reinicia.
+B2. Botón "Nueva factura" que limpia el formulario y asigna el siguiente número; al editar una factura CARGADA, guardar debe preguntar/duplicar en vez de sobrescribir en silencio.
+B3. Fecha de emisión por defecto HOY; las fechas impresas en formato español dd/mm/aaaa.
+
+LOTE C — VALIDACIÓN Y FEEDBACK:
+C1. Antes de "Descargar PDF": validar obligatorios (nombre y NIF válido del emisor, nombre del cliente, fecha de emisión, al menos una línea con concepto y precio) y, si falta algo, NO imprimir: mostrar la lista de faltas en una región aria-live y enfocar el primer campo. Lo mismo, en suave (aviso no bloqueante), al Guardar.
+C2. Límite free alcanzado: mensaje claro visible y en aria-live ("Has llegado a las 5 facturas gratis — Facturea Pro guarda ilimitadas") con el CTA Pro al lado. Guardar con éxito también da feedback visible.
+C3. NIF: mensaje de texto del error (no solo clases) + estilos .nif-valido/.nif-invalido reales en CSS; aria-live cortés.
+C4. Cuadre de céntimos: las cuotas de IVA/recargo se redondean POR TIPO en el desglose y el total = suma de los importes redondeados mostrados (la factura impresa siempre cuadra). Ajustar tests del caso canónico si cambia algún céntimo y añadir un test de cuadre (suma del desglose == total).
+
+LOTE D — CSS COMPLETO (hoy la factura y el formulario van con estilos de navegador):
+D1. Factura A4 profesional: reglas para TODAS las clases ya emitidas por factura-vista.ts (.factura-print, .factura-cabecera con var(--color-acento) visible, .factura-lineas con tabla correcta, .factura-desglose-iva, .factura-totales alineados a la derecha, .factura-total-destacado grande y en negrita, .factura-logo con max-height 4rem/object-fit contain, .factura-marca discreta). El acento Pro debe VERSE.
+D2. @media print con display:none (no visibility) para todo lo que no sea la factura: el PDF sale en UNA página sin huecos. Probar también márgenes @page.
+D3. Formulario y páginas: .campo, .linea-factura, botones, historial, sección Pro, estados vacíos ("Aún no has guardado ninguna factura"), tabla de líneas usable en 360px (apilar o scroll propio), y en escritorio (≥1100px) formulario y vista previa LADO A LADO (grid 2 columnas).
+D4. El contador "N/5" solo para usuarios free (un Pro no debe ver "12/5").
+
+LOTE E — CONVERSIÓN Y SEO TÉCNICO:
+E1. Sección Pro con propuesta de valor: lista de beneficios (sin marca de agua, logo y color, ilimitadas, export/import) + precio ancla desde src/config.ts (nueva constante PRECIO_PRO = "29 €/año") + botón de compra que solo abre PRO_URL si ≠ "#" (si es "#", texto "Muy pronto — déjanos tu email"). CTA Pro también tras descargar el PDF (momento de dolor 2), no intrusivo.
+E2. Marca de agua free con URL: "Hecho con Facturea — niunmetro.github.io/facturea" (sigue siendo digna).
+E3. Crear vite.config.ts con base "/facturea/" (en GitHub Pages los assets con ruta raíz dan 404). twitter:card pasa a "summary" (no hay imagen og). H1 con la keyword ("Plantilla de factura de autónomo con IVA e IRPF") y la marca como kicker encima.
+
+LOTE F — ROBUSTEZ:
+F1. importarJSON/cargarDatos validan la FORMA de cada factura y cliente (números finitos, strings, arrays) descartando entradas corruptas sin romper; test con JSON malicioso/basura.
+F2. Todo parseo numérico de inputs acepta coma decimal española y devuelve 0 ante basura (sin NaN en la factura); si ya existe en formato.ts, úsalo en TODOS los puntos de entrada.
