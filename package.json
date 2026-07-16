@@ -1,0 +1,23 @@
+{
+  "name": "facturea",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Facturas de autónomo en el navegador: IVA, IRPF, numeración y PDF, sin backend y sin registrarte.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.5.0",
+    "vite": "^5.4.0",
+    "vitest": "^2.1.0"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true
+  }
+}

@@ -1,0 +1,16 @@
+# motor Forja (duplicado local, nunca al repo del producto)
+forja/
+forja.yaml
+plan.json
+.forja/
+.forja_lock*
+.forja_parada*
+forja.db*
+
+# node
+node_modules/
+dist/
+
+# sistema
+.DS_Store
+Thumbs.db
