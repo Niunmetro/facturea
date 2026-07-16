@@ -10,16 +10,24 @@ export interface DatosFormulario {
   fechaEmision: string;
   fechaVencimiento: string;
   formaPago?: string;
+  fechaOperacion?: string;
 }
 
 export interface FormularioAPI {
   leerDatos(): DatosFormulario;
   cargarDatos(d: DatosFormulario): void;
+  limpiar(): void;
 }
 
 const IVA_OPCIONES: IvaPct[] = [0, 4, 10, 21];
 const IRPF_OPCIONES: RetencionIrpfPct[] = [0, 7, 15];
 const RECARGO_OPCIONES: RecargoPct[] = [0, 0.5, 1.4, 5.2];
+
+const MOTIVOS_EXENCION_SUGERENCIAS: string[] = [
+  'Operación exenta art. 20 LIVA',
+  'Inversión del sujeto pasivo art. 84.Uno.2 LIVA',
+  'No sujeta art. 69 LIVA — cliente UE',
+];
 
 let idCounter = 0;
 function siguienteId(prefijo: string): string {
@@ -34,6 +42,8 @@ interface FilaLinea {
   precioUnitario: HTMLInputElement;
   ivaPct: HTMLSelectElement;
   recargoPct: HTMLSelectElement;
+  motivoExencion: HTMLInputElement;
+  motivoExencionGrupo: HTMLElement;
 }
 
 function crearCampoTexto(
@@ -60,6 +70,44 @@ function crearCampoTexto(
   input.addEventListener('input', onChange);
 
   return input;
+}
+
+function crearCampoTextoConSugerencias(
+  contenedor: HTMLElement,
+  etiqueta: string,
+  sugerencias: string[],
+  onChange: () => void
+): { grupo: HTMLElement; input: HTMLInputElement } {
+  const grupo = document.createElement('div');
+  grupo.className = 'campo';
+
+  const id = siguienteId('campo');
+  const label = document.createElement('label');
+  label.setAttribute('for', id);
+  label.textContent = etiqueta;
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.id = id;
+
+  const listaId = siguienteId('datalist');
+  const datalist = document.createElement('datalist');
+  datalist.id = listaId;
+  for (const sugerencia of sugerencias) {
+    const option = document.createElement('option');
+    option.value = sugerencia;
+    datalist.appendChild(option);
+  }
+  input.setAttribute('list', listaId);
+
+  grupo.appendChild(label);
+  grupo.appendChild(input);
+  grupo.appendChild(datalist);
+  contenedor.appendChild(grupo);
+
+  input.addEventListener('input', onChange);
+
+  return { grupo, input };
 }
 
 function crearCampoNumerico(
@@ -103,7 +151,8 @@ function crearSelect<T extends number>(
   etiqueta: string,
   opciones: T[],
   sufijo: string,
-  onChange: () => void
+  onChange: () => void,
+  etiquetasPersonalizadas?: Partial<Record<T, string>>
 ): HTMLSelectElement {
   const grupo = document.createElement('div');
   grupo.className = 'campo';
@@ -119,7 +168,7 @@ function crearSelect<T extends number>(
   for (const opcion of opciones) {
     const option = document.createElement('option');
     option.value = String(opcion);
-    option.textContent = `${opcion}${sufijo}`;
+    option.textContent = etiquetasPersonalizadas?.[opcion] ?? `${opcion}${sufijo}`;
     select.appendChild(option);
   }
 
@@ -152,19 +201,27 @@ export function montarFormulario(root: HTMLElement, onChange: () => void): Formu
   const emisorDireccion = crearCampoTexto(seccionEmisor, 'Dirección', onChange);
   const emisorIban = crearCampoTexto(seccionEmisor, 'IBAN (opcional)', onChange);
 
+  const emisorNifMensaje = document.createElement('p');
+  emisorNifMensaje.className = 'nif-mensaje';
+  emisorNifMensaje.setAttribute('aria-live', 'polite');
+  emisorNif.insertAdjacentElement('afterend', emisorNifMensaje);
+
   const validarNifEmisorVisual = () => {
     const valor = emisorNif.value.trim();
     emisorNif.classList.remove('nif-valido', 'nif-invalido');
     emisorNif.removeAttribute('aria-invalid');
+    emisorNifMensaje.textContent = '';
     if (valor === '') {
       return;
     }
     if (validarNif(valor)) {
       emisorNif.classList.add('nif-valido');
       emisorNif.setAttribute('aria-invalid', 'false');
+      emisorNifMensaje.textContent = 'El NIF es válido.';
     } else {
       emisorNif.classList.add('nif-invalido');
       emisorNif.setAttribute('aria-invalid', 'true');
+      emisorNifMensaje.textContent = 'El NIF no es válido.';
     }
   };
   emisorNif.addEventListener('input', validarNifEmisorVisual);
@@ -189,6 +246,7 @@ export function montarFormulario(root: HTMLElement, onChange: () => void): Formu
 
   const fechaEmision = crearCampoFecha(seccionDatos, 'Fecha de emisión', onChange);
   const fechaVencimiento = crearCampoFecha(seccionDatos, 'Fecha de vencimiento', onChange);
+  const fechaOperacion = crearCampoFecha(seccionDatos, 'Fecha de operación (opcional)', onChange);
   const formaPago = crearCampoTexto(seccionDatos, 'Forma de pago (opcional)', onChange);
   const retencionIrpf = crearSelect(seccionDatos, 'IRPF', IRPF_OPCIONES, '%', onChange);
 
@@ -212,8 +270,21 @@ export function montarFormulario(root: HTMLElement, onChange: () => void): Formu
     const concepto = crearCampoTexto(wrapper, 'Concepto', onChange);
     const cantidad = crearCampoNumerico(wrapper, 'Cantidad', onChange);
     const precioUnitario = crearCampoNumerico(wrapper, 'Precio unitario', onChange);
-    const ivaPct = crearSelect(wrapper, 'IVA', IVA_OPCIONES, '%', onChange);
+    const ivaPct = crearSelect(wrapper, 'IVA', IVA_OPCIONES, '%', onChange, { 0: 'Exenta/No sujeta' });
     const recargoPct = crearSelect(wrapper, 'Recargo de equivalencia', RECARGO_OPCIONES, '%', onChange);
+
+    const { grupo: motivoExencionGrupo, input: motivoExencion } = crearCampoTextoConSugerencias(
+      wrapper,
+      'Motivo de exención',
+      MOTIVOS_EXENCION_SUGERENCIAS,
+      onChange
+    );
+
+    const actualizarVisibilidadMotivoExencion = () => {
+      motivoExencionGrupo.style.display = ivaPct.value === '0' ? '' : 'none';
+    };
+    ivaPct.addEventListener('change', actualizarVisibilidadMotivoExencion);
+    actualizarVisibilidadMotivoExencion();
 
     const botonQuitar = document.createElement('button');
     botonQuitar.type = 'button';
@@ -230,7 +301,7 @@ export function montarFormulario(root: HTMLElement, onChange: () => void): Formu
 
     listaLineas.appendChild(wrapper);
 
-    return { wrapper, concepto, cantidad, precioUnitario, ivaPct, recargoPct };
+    return { wrapper, concepto, cantidad, precioUnitario, ivaPct, recargoPct, motivoExencion, motivoExencionGrupo };
   }
 
   function anadirLinea(): void {
@@ -249,13 +320,20 @@ export function montarFormulario(root: HTMLElement, onChange: () => void): Formu
   anadirLinea();
 
   function leerDatos(): DatosFormulario {
-    const lineas: LineaFactura[] = filas.map((f) => ({
-      concepto: f.concepto.value,
-      cantidad: parseDecimalEs(f.cantidad.value),
-      precioUnitario: parseDecimalEs(f.precioUnitario.value),
-      ivaPct: Number(f.ivaPct.value) as IvaPct,
-      recargoPct: Number(f.recargoPct.value) as RecargoPct,
-    }));
+    const lineas: LineaFactura[] = filas.map((f) => {
+      const ivaPct = Number(f.ivaPct.value) as IvaPct;
+      const linea: LineaFactura = {
+        concepto: f.concepto.value,
+        cantidad: parseDecimalEs(f.cantidad.value),
+        precioUnitario: parseDecimalEs(f.precioUnitario.value),
+        ivaPct,
+        recargoPct: Number(f.recargoPct.value) as RecargoPct,
+      };
+      if (ivaPct === 0) {
+        linea.motivoExencion = f.motivoExencion.value;
+      }
+      return linea;
+    });
 
     const emisor: Emisor = {
       nombre: emisorNombre.value,
@@ -283,6 +361,10 @@ export function montarFormulario(root: HTMLElement, onChange: () => void): Formu
       datos.formaPago = formaPago.value;
     }
 
+    if (fechaOperacion.value.trim() !== '') {
+      datos.fechaOperacion = fechaOperacion.value;
+    }
+
     return datos;
   }
 
@@ -299,6 +381,7 @@ export function montarFormulario(root: HTMLElement, onChange: () => void): Formu
 
     fechaEmision.value = d.fechaEmision;
     fechaVencimiento.value = d.fechaVencimiento;
+    fechaOperacion.value = d.fechaOperacion ?? '';
     formaPago.value = d.formaPago ?? '';
     retencionIrpf.value = String(d.retencionIrpfPct);
 
@@ -312,6 +395,8 @@ export function montarFormulario(root: HTMLElement, onChange: () => void): Formu
       fila.precioUnitario.value = String(linea.precioUnitario);
       fila.ivaPct.value = String(linea.ivaPct);
       fila.recargoPct.value = String(linea.recargoPct);
+      fila.motivoExencion.value = linea.motivoExencion ?? '';
+      fila.motivoExencionGrupo.style.display = linea.ivaPct === 0 ? '' : 'none';
       filas.push(fila);
     }
     if (filas.length === 0) {
@@ -319,5 +404,27 @@ export function montarFormulario(root: HTMLElement, onChange: () => void): Formu
     }
   }
 
-  return { leerDatos, cargarDatos };
+  function limpiar(): void {
+    emisorNombre.value = '';
+    emisorNif.value = '';
+    emisorDireccion.value = '';
+    emisorIban.value = '';
+    validarNifEmisorVisual();
+
+    clienteNombre.value = '';
+    clienteNif.value = '';
+    clienteDireccion.value = '';
+
+    fechaEmision.value = '';
+    fechaVencimiento.value = '';
+    fechaOperacion.value = '';
+    formaPago.value = '';
+    retencionIrpf.value = String(IRPF_OPCIONES[0]);
+
+    listaLineas.innerHTML = '';
+    filas.length = 0;
+    anadirLinea();
+  }
+
+  return { leerDatos, cargarDatos, limpiar };
 }
