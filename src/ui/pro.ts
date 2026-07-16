@@ -1,6 +1,6 @@
 import { activarLicencia, esProActivo, desactivarLicencia } from '../core/licencia';
 import { exportarJSON, importarJSON } from '../core/almacen';
-import { PRO_URL, AFILIADO_GESTORIA_URL } from '../config';
+import { PRO_URL, AFILIADO_GESTORIA_URL, PRECIO_PRO } from '../config';
 
 export interface ProAPI {
   esPro(): boolean;
@@ -60,6 +60,31 @@ export function montarPro(root: HTMLElement, onCambio: () => void): ProAPI {
     contenedor.appendChild(estado);
 
     if (!pro) {
+      const valorPro = document.createElement('div');
+      valorPro.className = 'pro-valor';
+
+      const listaBeneficios = document.createElement('ul');
+      listaBeneficios.className = 'pro-beneficios';
+      const beneficios = [
+        'Sin marca de agua',
+        'Logo y color de acento',
+        'Facturas ilimitadas',
+        'Exportar/importar datos',
+      ];
+      for (const beneficio of beneficios) {
+        const item = document.createElement('li');
+        item.textContent = beneficio;
+        listaBeneficios.appendChild(item);
+      }
+      valorPro.appendChild(listaBeneficios);
+
+      const precio = document.createElement('p');
+      precio.className = 'pro-precio';
+      precio.textContent = PRECIO_PRO;
+      valorPro.appendChild(precio);
+
+      contenedor.appendChild(valorPro);
+
       const campoClave = document.createElement('input');
       campoClave.type = 'text';
       campoClave.placeholder = 'Clave de licencia (FACT-XXXX-XXXX-XXXX)';
@@ -85,12 +110,19 @@ export function montarPro(root: HTMLElement, onCambio: () => void): ProAPI {
       contenedor.appendChild(botonActivar);
       contenedor.appendChild(mensaje);
 
-      const enlaceCompra = document.createElement('a');
-      enlaceCompra.href = PRO_URL;
-      enlaceCompra.target = '_blank';
-      enlaceCompra.rel = 'noopener noreferrer';
-      enlaceCompra.textContent = 'Hazte Pro';
-      contenedor.appendChild(enlaceCompra);
+      if (PRO_URL !== '#') {
+        const enlaceCompra = document.createElement('a');
+        enlaceCompra.href = PRO_URL;
+        enlaceCompra.target = '_blank';
+        enlaceCompra.rel = 'noopener noreferrer';
+        enlaceCompra.textContent = 'Hazte Pro';
+        contenedor.appendChild(enlaceCompra);
+      } else {
+        const proximamente = document.createElement('p');
+        proximamente.className = 'pro-proximamente';
+        proximamente.textContent = 'Muy pronto — déjanos tu email';
+        contenedor.appendChild(proximamente);
+      }
     } else {
       const botonDesactivar = document.createElement('button');
       botonDesactivar.type = 'button';
