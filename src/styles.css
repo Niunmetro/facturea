@@ -9,7 +9,12 @@
   --color-primario: #1a56db;
   --color-primario-oscuro: #123a99;
   --color-foco: #1a56db;
+  --color-peligro: #b91c1c;
+  --color-peligro-oscuro: #7f1d1d;
+  --color-exito: #15803d;
+  --color-acento: #2563eb;
   --altura-barra-total: 3.5rem;
+  --radio: 0.5rem;
 }
 
 * {
@@ -77,7 +82,7 @@ a {
 #zona-pro {
   background: var(--color-superficie);
   border: 1px solid var(--color-borde);
-  border-radius: 0.5rem;
+  border-radius: var(--radio);
   padding: 1rem;
 }
 
@@ -101,7 +106,192 @@ a {
   color: var(--color-texto-suave);
 }
 
-/* Barra total: fija en la parte inferior en móvil */
+/* ---------- Formulario ---------- */
+
+.formulario-factura fieldset {
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem 1rem;
+}
+
+.formulario-factura legend {
+  padding: 0 0.375rem;
+  font-weight: 600;
+  color: var(--color-texto);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.campo label {
+  font-size: 0.875rem;
+  color: var(--color-texto-suave);
+}
+
+.campo input,
+.campo select {
+  padding: 0.5rem 0.625rem;
+  font-size: 1rem;
+  border: 1px solid var(--color-borde);
+  border-radius: 0.375rem;
+  background: var(--color-superficie);
+  color: var(--color-texto);
+}
+
+.campo input.nif-valido {
+  border-color: var(--color-exito);
+}
+
+.campo input.nif-invalido {
+  border-color: var(--color-peligro);
+}
+
+.lineas-factura {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.linea-factura {
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: 0.75rem;
+  background: var(--color-fondo);
+}
+
+.formulario-factura button[type="button"] {
+  padding: 0.5rem 0.875rem;
+  font-size: 0.9375rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-borde);
+  background: var(--color-superficie);
+  color: var(--color-primario);
+  cursor: pointer;
+}
+
+.formulario-factura button[type="button"]:hover {
+  background: var(--color-fondo);
+}
+
+.linea-factura button[type="button"] {
+  color: var(--color-peligro);
+}
+
+/* ---------- Historial ---------- */
+
+.historial-contador {
+  font-size: 0.875rem;
+  color: var(--color-texto-suave);
+  margin-bottom: 0.5rem;
+}
+
+.historial-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.historial-item {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem 0.5rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--color-borde);
+  border-radius: 0.375rem;
+}
+
+.historial-numero {
+  font-weight: 600;
+}
+
+.historial-cliente,
+.historial-fecha {
+  color: var(--color-texto-suave);
+  font-size: 0.875rem;
+}
+
+.historial-cargar,
+.historial-duplicar,
+.historial-borrar {
+  padding: 0.375rem 0.625rem;
+  font-size: 0.875rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-borde);
+  background: var(--color-superficie);
+  cursor: pointer;
+}
+
+.historial-cargar {
+  color: var(--color-primario);
+}
+
+.historial-borrar {
+  color: var(--color-peligro);
+}
+
+.historial-cta-pro {
+  display: block;
+  margin-top: 0.75rem;
+  padding: 0.625rem;
+  text-align: center;
+  border-radius: 0.375rem;
+  background: var(--color-fondo);
+  border: 1px dashed var(--color-borde);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.historial-lista:empty {
+  display: none;
+}
+
+/* ---------- Sección Pro ---------- */
+
+.seccion-pro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pro-estado {
+  font-weight: 600;
+  margin: 0;
+}
+
+.pro-mensaje {
+  color: var(--color-peligro);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.pro-acento,
+.pro-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pro-datos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pro-afiliado {
+  font-size: 0.875rem;
+  color: var(--color-texto-suave);
+}
+
+/* ---------- Barra total: fija en la parte inferior en móvil ---------- */
 .barra-total {
   position: fixed;
   left: 0;
@@ -116,6 +306,11 @@ a {
   background: var(--color-superficie);
   border-top: 1px solid var(--color-borde);
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.barra-total-importe {
+  font-weight: 600;
+  margin-right: auto;
 }
 
 .barra-total button {
@@ -133,6 +328,162 @@ a {
   background: var(--color-primario-oscuro);
 }
 
+/* ---------- Vista previa de la factura (folio A4) ---------- */
+
+.factura-print {
+  --color-acento: #2563eb;
+  background: #ffffff;
+  color: #111318;
+  max-width: 21cm;
+  min-height: 20cm;
+  margin: 0 auto;
+  padding: 1.5cm;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  font-size: 0.9375rem;
+}
+
+.factura-logo {
+  max-height: 4rem;
+  object-fit: contain;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.factura-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 4px solid var(--color-acento);
+}
+
+.factura-cabecera h1 {
+  margin: 0 0 0.25rem;
+  color: var(--color-acento);
+}
+
+.factura-emisor h2 {
+  margin: 0 0 0.25rem;
+}
+
+.factura-emisor p,
+.factura-datos p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.875rem;
+}
+
+.factura-datos {
+  text-align: right;
+}
+
+.factura-cliente {
+  margin-bottom: 1rem;
+}
+
+.factura-cliente h3 {
+  margin: 0 0 0.25rem;
+  text-transform: uppercase;
+  font-size: 0.8125rem;
+  letter-spacing: 0.03em;
+  color: #6b7280;
+}
+
+.factura-cliente p {
+  margin: 0;
+}
+
+.factura-lineas,
+.factura-desglose-iva {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.factura-lineas thead,
+.factura-desglose-iva thead {
+  background: var(--color-acento);
+}
+
+.factura-lineas th,
+.factura-desglose-iva th {
+  color: #ffffff;
+  text-align: left;
+  padding: 0.5rem 0.625rem;
+  font-size: 0.8125rem;
+}
+
+.factura-lineas td,
+.factura-desglose-iva td {
+  padding: 0.5rem 0.625rem;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.875rem;
+}
+
+.factura-motivo-exencion {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin: 0 0 1rem;
+}
+
+.factura-totales {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.factura-linea-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 18rem;
+  font-size: 0.9375rem;
+}
+
+.factura-total-destacado {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 18rem;
+  padding-top: 0.5rem;
+  margin-top: 0.25rem;
+  border-top: 2px solid var(--color-acento);
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--color-acento);
+}
+
+.factura-pago {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.factura-iban,
+.factura-forma-pago {
+  margin: 0.25rem 0;
+}
+
+.factura-marca {
+  margin-top: 1.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+/* ---------- Responsive: escritorio ancho, formulario y vista lado a lado ---------- */
+
 @media (min-width: 48rem) {
   .barra-total {
     position: sticky;
@@ -146,22 +497,94 @@ a {
   body {
     padding-bottom: 1rem;
   }
+
+  .historial-item {
+    grid-template-columns: auto 1fr auto auto auto auto;
+    align-items: center;
+  }
+}
+
+@media (min-width: 1100px) {
+  #app {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "formulario vista"
+      "historial vista"
+      "pro vista";
+    align-items: start;
+    gap: 1rem;
+  }
+
+  #zona-formulario {
+    grid-area: formulario;
+  }
+
+  #zona-vista {
+    grid-area: vista;
+    position: sticky;
+    top: 1rem;
+  }
+
+  #zona-historial {
+    grid-area: historial;
+  }
+
+  #zona-pro {
+    grid-area: pro;
+  }
+}
+
+/* ---------- Impresión: solo la factura, en una página A4 ---------- */
+
+@page {
+  size: A4;
+  margin: 1.5cm;
 }
 
 @media print {
-  body * {
-    visibility: hidden;
+  body {
+    background: #ffffff;
+    padding-bottom: 0;
   }
 
-  .factura-print,
-  .factura-print * {
-    visibility: visible;
+  .cabecera,
+  #ad-top,
+  #ad-bottom,
+  #zona-formulario,
+  #zona-historial,
+  #zona-pro,
+  .barra-total,
+  .contenido-seo {
+    display: none;
+  }
+
+  #app {
+    display: block;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  #zona-vista {
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
   }
 
   .factura-print {
-    position: absolute;
-    top: 0;
-    left: 0;
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    min-height: 0;
     width: 100%;
+  }
+
+  .factura-lineas,
+  .factura-desglose-iva {
+    overflow-x: visible;
+    white-space: normal;
   }
 }
