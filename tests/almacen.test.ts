@@ -165,6 +165,58 @@ describe("almacen", () => {
     expect(cargarEmisor()).toEqual(emisor);
   });
 
+  it("cargarDatos descarta facturas con forma inválida y conserva las válidas", () => {
+    mockStorage.setItem(
+      "facturea:datos",
+      JSON.stringify({
+        version: 1,
+        emisor: null,
+        clientes: [],
+        facturas: [
+          crearFactura("F-1"),
+          { numero: "F-2" },
+          { ...crearFactura("F-3"), lineas: [{ concepto: "X", cantidad: "no-numero", precioUnitario: 1, ivaPct: 21, recargoPct: 0 }] },
+          { ...crearFactura("F-4"), lineas: [{ concepto: "X", cantidad: Infinity, precioUnitario: 1, ivaPct: 21, recargoPct: 0 }] },
+          null,
+          "basura",
+        ],
+      })
+    );
+
+    expect(() => cargarDatos()).not.toThrow();
+    expect(listarFacturas().map((f) => f.numero)).toEqual(["F-1"]);
+  });
+
+  it("cargarDatos descarta clientes con forma inválida y conserva los válidos", () => {
+    mockStorage.setItem(
+      "facturea:datos",
+      JSON.stringify({
+        version: 1,
+        emisor: null,
+        clientes: [cliente, { nombre: "Sin NIF" }, { nombre: 1, nif: "X", direccion: "Y" }, null],
+        facturas: [],
+      })
+    );
+
+    expect(() => cargarDatos()).not.toThrow();
+    expect(listarClientes()).toEqual([cliente]);
+  });
+
+  it("importarJSON con facturas/clientes mezclando válidos y basura conserva solo los válidos", () => {
+    const json = JSON.stringify({
+      version: 1,
+      emisor: null,
+      clientes: [cliente, { nombre: "Malo" }],
+      facturas: [crearFactura("F-1"), { numero: "F-2" }],
+    });
+
+    const resultado = importarJSON(json);
+
+    expect(resultado).toEqual({ ok: true });
+    expect(listarFacturas().map((f) => f.numero)).toEqual(["F-1"]);
+    expect(listarClientes()).toEqual([cliente]);
+  });
+
   it("con localStorage lanzando, ninguna función lanza excepción", () => {
     vi.stubGlobal("localStorage", {
       getItem: () => {

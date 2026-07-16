@@ -66,3 +66,11 @@ export function formatearNumero(n: number, decimales: number = 2): string {
 export function formatearEuros(n: number): string {
   return formatearNumero(n, 2);
 }
+
+export function formatearFechaEs(iso: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+    return iso;
+  }
+  const [anio, mes, dia] = iso.split('-');
+  return `${dia}/${mes}/${anio}`;
+}

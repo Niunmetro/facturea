@@ -8,6 +8,7 @@ export interface LineaFactura {
   precioUnitario: number;
   ivaPct: IvaPct;
   recargoPct: RecargoPct;
+  motivoExencion?: string;
 }
 
 export interface DesgloseIva {
@@ -47,6 +48,7 @@ export interface FacturaGuardada {
   lineas: LineaFactura[];
   retencionIrpfPct: RetencionIrpfPct;
   formaPago?: string;
+  fechaOperacion?: string;
 }
 
 export interface DatosApp {

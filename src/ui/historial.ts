@@ -42,14 +42,18 @@ export function montarHistorial(root: HTMLElement, deps: HistorialDeps): Histori
       })
       .join("");
 
+    const contadorHtml = esPro ? "" : `<div class="historial-contador">${total}/${LIMITE_FREE}</div>`;
+
     const cta = enLimite
-      ? `<a class="historial-cta-pro" href="${escaparHtml(PRO_URL)}">Pasa a Pro para guardar más facturas</a>`
+      ? `<a class="historial-cta-pro" href="${escaparHtml(PRO_URL)}">Has llegado a las 5 facturas gratis — Facturea Pro guarda ilimitadas</a>`
       : "";
+
+    const contenido = filas ? filas : '<div class="historial-vacio">Aun no has guardado ninguna factura</div>';
 
     root.innerHTML = `
       <div class="historial">
-        <div class="historial-contador">${total}/${LIMITE_FREE}</div>
-        <ul class="historial-lista">${filas}</ul>
+        ${contadorHtml}
+        <ul class="historial-lista">${contenido}</ul>
         ${cta}
       </div>`;
 
