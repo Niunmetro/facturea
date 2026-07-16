@@ -1,5 +1,5 @@
 import type { FacturaGuardada, ResultadoFactura } from "../core/types";
-import { formatearEuros } from "../core/formato";
+import { formatearEuros, formatearFechaEs } from "../core/formato";
 
 export interface OpcionesRenderFactura {
   esPro: boolean;
@@ -30,22 +30,28 @@ export function renderFacturaHTML(
   const filasLineas = factura.lineas
     .map((linea) => {
       const importe = linea.cantidad * linea.precioUnitario;
+      const iva = linea.ivaPct === 0 ? "Exento" : `${linea.ivaPct}%`;
       return `
         <tr>
           <td>${escaparHtml(linea.concepto)}</td>
           <td>${linea.cantidad}</td>
           <td>${formatearEuros(linea.precioUnitario)}</td>
-          <td>${linea.ivaPct}%</td>
+          <td>${iva}</td>
           <td>${formatearEuros(importe)}</td>
         </tr>`;
     })
+    .join("");
+
+  const motivosExencion = factura.lineas
+    .filter((linea) => linea.ivaPct === 0 && linea.motivoExencion)
+    .map((linea) => `<p class="factura-motivo-exencion">${escaparHtml(linea.motivoExencion!)}</p>`)
     .join("");
 
   const filasDesglose = resultado.desgloseIva
     .map(
       (d) => `
         <tr>
-          <td>${d.ivaPct}%</td>
+          <td>${d.ivaPct === 0 ? "Exento" : `${d.ivaPct}%`}</td>
           <td>${formatearEuros(d.base)}</td>
           <td>${formatearEuros(d.cuota)}</td>
         </tr>`
@@ -70,9 +76,13 @@ export function renderFacturaHTML(
     ? `<div class="factura-forma-pago">Forma de pago: ${escaparHtml(factura.formaPago)}</div>`
     : "";
 
+  const filaFechaOperacion = factura.fechaOperacion
+    ? `<p>Fecha de operación: ${escaparHtml(formatearFechaEs(factura.fechaOperacion))}</p>`
+    : "";
+
   const pieMarca = opts.esPro
     ? ""
-    : `<footer class="factura-marca">Hecho con Facturea</footer>`;
+    : `<footer class="factura-marca">Hecho con Facturea — niunmetro.github.io/facturea</footer>`;
 
   return `
 <article class="factura-print" style="--color-acento: ${acento};">
@@ -85,8 +95,9 @@ export function renderFacturaHTML(
     </div>
     <div class="factura-datos">
       <h1>Factura ${escaparHtml(factura.numero)}</h1>
-      <p>Fecha de emisión: ${escaparHtml(factura.fechaEmision)}</p>
-      <p>Fecha de vencimiento: ${escaparHtml(factura.fechaVencimiento)}</p>
+      <p>Fecha de emisión: ${escaparHtml(formatearFechaEs(factura.fechaEmision))}</p>
+      <p>Fecha de vencimiento: ${escaparHtml(formatearFechaEs(factura.fechaVencimiento))}</p>
+      ${filaFechaOperacion}
     </div>
   </header>
 
@@ -122,6 +133,7 @@ export function renderFacturaHTML(
     <tbody>${filasDesglose}
     </tbody>
   </table>
+  ${motivosExencion}
 
   <section class="factura-totales">
     <div class="factura-linea-total"><span>Base imponible</span><span>${formatearEuros(resultado.baseImponible)}</span></div>
