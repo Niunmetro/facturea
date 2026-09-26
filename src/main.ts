@@ -49,6 +49,45 @@ function datosADatosFormulario(f: FacturaGuardada): DatosFormulario {
     fechaEmision: f.fechaEmision,
     fechaVencimiento: f.fechaVencimiento,
     ...(f.formaPago !== undefined ? { formaPago: f.formaPago } : {}),
+    ...(f.fechaOperacion !== undefined ? { fechaOperacion: f.fechaOperacion } : {}),
+  };
+}
+
+function sumarDias(fechaIso: string, dias: number): string {
+  const [anio, mes, dia] = fechaIso.split('-').map(Number);
+  const fecha = new Date(anio ?? 1970, (mes ?? 1) - 1, (dia ?? 1) + dias);
+  const m = String(fecha.getMonth() + 1).padStart(2, '0');
+  const d = String(fecha.getDate()).padStart(2, '0');
+  return `${fecha.getFullYear()}-${m}-${d}`;
+}
+
+/** Datos de demostración para ver la herramienta en acción (no se guardan como factura). */
+function datosEjemplo(emisorActual: DatosFormulario['emisor']): DatosFormulario {
+  const hoy = hoyIso();
+  const emisor =
+    emisorActual.nombre.trim() !== ''
+      ? emisorActual
+      : {
+          nombre: 'Laura Martín Ortega',
+          nif: '12345678Z',
+          direccion: 'C/ Trapería 14, 2.º B · 30001 Murcia',
+          iban: 'ES91 2100 0418 4502 0005 1332',
+        };
+  return {
+    emisor,
+    cliente: {
+      nombre: 'Nortesur Logística S.L.',
+      nif: 'B76543214',
+      direccion: 'Av. de la Libertad 8 · 30009 Murcia',
+    },
+    lineas: [
+      { concepto: 'Diseño de identidad visual (logotipo y manual de marca)', cantidad: 1, precioUnitario: 1200, ivaPct: 21, recargoPct: 0 },
+      { concepto: 'Maquetación de la web corporativa (horas)', cantidad: 12, precioUnitario: 45, ivaPct: 21, recargoPct: 0 },
+    ],
+    retencionIrpfPct: 15,
+    fechaEmision: hoy,
+    fechaVencimiento: sumarDias(hoy, 30),
+    formaPago: 'Transferencia bancaria a 30 días',
   };
 }
 
@@ -77,10 +116,17 @@ function iniciar(): void {
   barraTotal.setAttribute('aria-live', 'polite');
   const importeTotal = document.createElement('span');
   importeTotal.className = 'barra-total-importe';
+  const importeEtiqueta = document.createElement('span');
+  importeEtiqueta.className = 'barra-total-etiqueta';
+  importeEtiqueta.textContent = 'Total';
+  const importeCifra = document.createElement('span');
+  importeCifra.className = 'barra-total-cifra';
+  importeTotal.append(importeEtiqueta, importeCifra);
   barraTotal.insertBefore(importeTotal, barraTotal.firstChild);
 
   const btnNuevaFactura = document.createElement('button');
   btnNuevaFactura.type = 'button';
+  btnNuevaFactura.className = 'btn btn-fantasma';
   btnNuevaFactura.textContent = 'Nueva factura';
   barraTotal.insertBefore(btnNuevaFactura, btnGuardar);
 
@@ -223,6 +269,7 @@ function iniciar(): void {
       lineas: datos.lineas,
       retencionIrpfPct: datos.retencionIrpfPct,
       ...(datos.formaPago !== undefined ? { formaPago: datos.formaPago } : {}),
+      ...(datos.fechaOperacion !== undefined ? { fechaOperacion: datos.fechaOperacion } : {}),
     };
     facturaActual = factura;
 
@@ -232,7 +279,7 @@ function iniciar(): void {
       logoDataUrl: proAPI.logoDataUrl(),
     });
 
-    importeTotal.textContent = `Total: ${formatearEuros(resultado.total)} €`;
+    importeCifra.textContent = `${formatearEuros(resultado.total)} €`;
   }
 
   const formularioAPI = montarFormulario(zonaFormulario, () => actualizarVista());
@@ -256,6 +303,18 @@ function iniciar(): void {
     ctaProDescarga.hidden = true;
     actualizarVista();
   });
+
+  const btnEjemplo = document.getElementById('btn-ejemplo');
+  const cargarEjemplo = (): void => {
+    formularioAPI.cargarDatos(datosEjemplo(formularioAPI.leerDatos().emisor));
+    numeroCargado = null;
+    numeroConsumido = null;
+    permitirSobrescritura = false;
+    limpiarAvisos();
+    ctaProDescarga.hidden = true;
+    actualizarVista();
+  };
+  btnEjemplo?.addEventListener('click', cargarEjemplo);
 
   btnGuardar.addEventListener('click', () => {
     if (!facturaActual) {
@@ -344,6 +403,11 @@ function iniciar(): void {
   });
 
   actualizarVista();
+
+  // Enlace de demostración (?ejemplo): abre la herramienta con una factura de muestra rellena.
+  if (new URLSearchParams(window.location.search).has('ejemplo')) {
+    cargarEjemplo();
+  }
 
   void reintentarVerificacion();
 }

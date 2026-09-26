@@ -54,10 +54,17 @@ export function montarPro(root: HTMLElement, onCambio: () => void): ProAPI {
     contenedor.innerHTML = '';
     const pro = esProActivo();
 
+    const cabecera = document.createElement('div');
+    cabecera.className = 'pro-cab';
+    const titulo = document.createElement('h2');
+    titulo.className = 'pro-titulo';
+    titulo.textContent = 'Facturea Pro';
     const estado = document.createElement('p');
-    estado.className = 'pro-estado';
+    estado.className = pro ? 'pro-estado es-pro' : 'pro-estado';
     estado.textContent = pro ? 'Estado: Pro' : 'Estado: Free';
-    contenedor.appendChild(estado);
+    cabecera.appendChild(titulo);
+    cabecera.appendChild(estado);
+    contenedor.appendChild(cabecera);
 
     if (!pro) {
       const valorPro = document.createElement('div');
@@ -85,10 +92,23 @@ export function montarPro(root: HTMLElement, onCambio: () => void): ProAPI {
 
       contenedor.appendChild(valorPro);
 
+      const grupoClave = document.createElement('div');
+      grupoClave.className = 'pro-campo';
+      const labelClave = document.createElement('label');
+      labelClave.setAttribute('for', 'pro-clave-input');
+      labelClave.textContent = '¿Ya tienes licencia? Actívala aquí';
+      const filaActivar = document.createElement('div');
+      filaActivar.className = 'pro-activar';
       const campoClave = document.createElement('input');
       campoClave.type = 'text';
-      campoClave.placeholder = 'Clave de licencia (FACT-XXXX-XXXX-XXXX)';
-      contenedor.appendChild(campoClave);
+      campoClave.id = 'pro-clave-input';
+      campoClave.autocomplete = 'off';
+      campoClave.spellcheck = false;
+      campoClave.placeholder = 'FACT-XXXX-XXXX-XXXX';
+      filaActivar.appendChild(campoClave);
+      grupoClave.appendChild(labelClave);
+      grupoClave.appendChild(filaActivar);
+      contenedor.appendChild(grupoClave);
 
       const mensaje = document.createElement('p');
       mensaje.className = 'pro-mensaje';
@@ -107,7 +127,7 @@ export function montarPro(root: HTMLElement, onCambio: () => void): ProAPI {
           mensaje.textContent = 'Clave inválida.';
         })();
       });
-      contenedor.appendChild(botonActivar);
+      filaActivar.appendChild(botonActivar);
       contenedor.appendChild(mensaje);
 
       if (PRO_URL !== '#') {
@@ -202,6 +222,7 @@ export function montarPro(root: HTMLElement, onCambio: () => void): ProAPI {
       const inputImportar = document.createElement('input');
       inputImportar.type = 'file';
       inputImportar.accept = 'application/json';
+      inputImportar.setAttribute('aria-label', 'Importar datos desde un fichero JSON');
       inputImportar.addEventListener('change', () => {
         const archivo = inputImportar.files?.[0];
         if (!archivo) return;

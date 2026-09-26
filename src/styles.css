@@ -1,146 +1,641 @@
-/* Facturea — tema claro, mobile-first */
+/* Facturea — sistema visual
+   Tipografía del sistema (sin fuentes externas), neutros pizarra y un único acento índigo. */
 
 :root {
-  --color-fondo: #f7f8fa;
+  color-scheme: light;
+
+  --color-fondo: #f6f7fb;
   --color-superficie: #ffffff;
-  --color-texto: #1a1d23;
-  --color-texto-suave: #565d6b;
-  --color-borde: #dde1e7;
-  --color-primario: #1a56db;
-  --color-primario-oscuro: #123a99;
-  --color-foco: #1a56db;
-  --color-peligro: #b91c1c;
-  --color-peligro-oscuro: #7f1d1d;
-  --color-exito: #15803d;
-  --color-acento: #2563eb;
-  --altura-barra-total: 3.5rem;
-  --radio: 0.5rem;
+  --color-superficie-2: #f8fafc;
+  --color-texto: #0f172a;
+  --color-texto-2: #334155;
+  --color-texto-suave: #55627a;
+  --color-placeholder: #737f93;
+  --color-borde: #e2e8f0;
+  --color-borde-fuerte: #cbd5e1;
+
+  --color-primario: #4338ca;
+  --color-primario-oscuro: #3730a3;
+  --color-primario-suave: #eef0ff;
+  --color-primario-borde: #c7cdfb;
+  --color-foco: #4338ca;
+  --anillo-foco: 0 0 0 3px rgba(67, 56, 202, 0.28);
+
+  --color-peligro: #b42318;
+  --color-peligro-suave: #fef3f2;
+  --color-exito: #067647;
+  --color-exito-suave: #ecfdf3;
+  --color-aviso: #93370d;
+  --color-aviso-suave: #fffaeb;
+  --color-acento: #4338ca;
+
+  --fuente: system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fuente-titulo: system-ui, -apple-system, "Segoe UI Variable Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --radio-s: 8px;
+  --radio: 12px;
+  --radio-l: 18px;
+  --sombra-s: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --sombra: 0 1px 2px rgba(15, 23, 42, 0.05), 0 4px 16px -4px rgba(15, 23, 42, 0.08);
+  --sombra-l: 0 2px 4px rgba(15, 23, 42, 0.04), 0 24px 48px -12px rgba(15, 23, 42, 0.18);
+
+  --altura-barra-total: 7.25rem;
+  --ancho-max: 78rem;
+  --tactil: 44px;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 html {
   -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
 }
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-family: var(--fuente);
+  font-size: 1rem;
   background: var(--color-fondo);
   color: var(--color-texto);
-  line-height: 1.5;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   padding-bottom: calc(var(--altura-barra-total) + 1rem);
+  overflow-x: hidden;
 }
 
-h1, h2, h3 {
-  line-height: 1.25;
+h1,
+h2,
+h3 {
+  font-family: var(--fuente-titulo);
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--color-texto);
 }
 
 a {
   color: var(--color-primario);
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--color-primario-oscuro);
 }
 
 :focus-visible {
   outline: 3px solid var(--color-foco);
   outline-offset: 2px;
+  border-radius: 4px;
 }
 
-.cabecera {
-  padding: 1.5rem 1rem 1rem;
-  text-align: center;
+svg {
+  flex-shrink: 0;
 }
 
-.cabecera h1 {
-  margin: 0 0 0.25rem;
+.contenedor {
+  width: 100%;
+  max-width: var(--ancho-max);
+  margin-inline: auto;
+  padding-inline: 1rem;
 }
 
-.cabecera p {
+.saltar {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 50;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radio-s);
+  background: var(--color-texto);
+  color: #fff;
+  font-weight: 600;
+}
+
+.saltar:focus {
+  top: 1rem;
+  color: #fff;
+}
+
+/* ---------- Cabecera del sitio ---------- */
+
+.sitio-cab {
+  background: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid var(--color-borde);
+  backdrop-filter: saturate(1.4) blur(8px);
+}
+
+.sitio-cab-interior {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.75rem;
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: var(--tactil);
+  font-family: var(--fuente-titulo);
+  font-weight: 700;
+  font-size: 1.1875rem;
+  letter-spacing: -0.02em;
+  color: var(--color-texto);
+  text-decoration: none;
+}
+
+.marca:hover {
+  color: var(--color-texto);
+}
+
+.marca-icono {
+  width: 30px;
+  height: 30px;
+  color: var(--color-primario);
+}
+
+.sitio-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.sitio-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tactil);
+  padding: 0 0.875rem;
+  border-radius: 999px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-texto-2);
+  text-decoration: none;
+}
+
+.sitio-nav a:hover {
+  background: var(--color-superficie-2);
+  color: var(--color-texto);
+}
+
+.sitio-nav .nav-pro {
+  color: var(--color-primario);
+  background: var(--color-primario-suave);
+  font-weight: 600;
+}
+
+.sitio-nav .nav-pro:hover {
+  background: #e2e5ff;
+  color: var(--color-primario-oscuro);
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  display: grid;
+  gap: 1.25rem;
+  padding-top: 1.75rem;
+  padding-bottom: 1.5rem;
+}
+
+.hero-sello {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.875rem;
+  padding: 0.3125rem 0.75rem;
+  border: 1px solid var(--color-primario-borde);
+  border-radius: 999px;
+  background: var(--color-primario-suave);
+  color: var(--color-primario-oscuro);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.hero h1 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.75rem, 1.1rem + 2.6vw, 2.625rem);
+  font-weight: 750;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.hero-sub {
   margin: 0;
+  max-width: 38rem;
+  font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
   color: var(--color-texto-suave);
+  text-wrap: pretty;
+}
+
+.ventajas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.625rem;
+}
+
+.ventajas li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-texto-suave);
+  line-height: 1.45;
+}
+
+.ventajas strong {
+  display: block;
+  font-size: 0.9375rem;
+  color: var(--color-texto);
+  font-weight: 650;
+}
+
+.ventaja-icono {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 10px;
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  box-shadow: var(--sombra-s);
+  color: var(--color-primario);
+  flex-shrink: 0;
+}
+
+.ventaja-icono svg,
+.btn svg,
+.aviso-legal > svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .hueco-anuncio {
   min-height: 1px;
   margin: 0 auto;
-  max-width: 60rem;
+  max-width: var(--ancho-max);
+}
+
+/* ---------- Botones ---------- */
+
+.btn,
+.formulario-factura button[type="button"],
+.historial button,
+.seccion-pro button,
+.cta-pro-descarga button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--tactil);
+  padding: 0 1.125rem;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active,
+.formulario-factura button[type="button"]:active,
+.historial button:active,
+.seccion-pro button:active {
+  transform: translateY(1px);
+}
+
+.btn-primario {
+  background: var(--color-primario);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.btn-primario:hover {
+  background: var(--color-primario-oscuro);
+}
+
+.btn-secundario {
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  border-color: var(--color-borde-fuerte);
+  box-shadow: var(--sombra-s);
+}
+
+.btn-secundario:hover {
+  background: var(--color-superficie-2);
+  border-color: #94a3b8;
+}
+
+.btn-fantasma {
+  background: transparent;
+  color: var(--color-texto-2);
+}
+
+.btn-fantasma:hover {
+  background: var(--color-superficie-2);
+  color: var(--color-texto);
+}
+
+.btn-suave {
+  background: var(--color-primario-suave);
+  color: var(--color-primario-oscuro);
+  border-color: var(--color-primario-borde);
+}
+
+.btn-suave:hover {
+  background: #e2e5ff;
+}
+
+button:focus-visible,
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 5px var(--color-foco);
+}
+
+/* ---------- Herramienta ---------- */
+
+.herramienta {
+  padding-bottom: 1rem;
+}
+
+.herramienta-cab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  padding: 1rem 0 0.875rem;
+  border-top: 1px solid var(--color-borde);
+}
+
+.herramienta-titulo {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.herramienta-nota {
+  margin: 0.125rem 0 0;
+  font-size: 0.875rem;
+  color: var(--color-texto-suave);
 }
 
 #app {
-  max-width: 60rem;
-  margin: 0 auto;
-  padding: 0 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
+.app-col-form {
+  display: contents;
+}
+
+.app-col-form > * {
+  order: 5;
+}
+
+#avisos {
+  order: 0;
+}
+
+#zona-formulario {
+  order: 1;
+}
+
+.app-col-vista {
+  order: 2;
+  min-width: 0;
+}
+
+.cta-pro-descarga {
+  order: 3;
+}
+
+#titulo-historial {
+  order: 4;
+}
+
+#zona-historial {
+  order: 4;
+}
+
+#zona-pro {
+  order: 6;
+}
+
 #zona-formulario,
-#zona-vista,
 #zona-historial,
 #zona-pro {
-  background: var(--color-superficie);
-  border: 1px solid var(--color-borde);
+  min-width: 0;
+}
+
+.titulo-bloque {
+  margin: 0.75rem 0 -0.25rem;
+  font-size: 1rem;
+  font-weight: 650;
+  color: var(--color-texto);
+}
+
+/* ---------- Avisos ---------- */
+
+.avisos {
+  padding: 0.875rem 1rem;
+  border: 1px solid #fedf89;
+  border-left: 4px solid #f79009;
   border-radius: var(--radio);
-  padding: 1rem;
+  background: var(--color-aviso-suave);
+  color: var(--color-aviso);
+  font-size: 0.9375rem;
 }
 
-.contenido-seo {
-  max-width: 42rem;
-  margin: 2rem auto;
-  padding: 0 1rem;
+.avisos p {
+  margin: 0;
+  font-weight: 600;
 }
 
-.contenido-seo ul {
+.avisos ul {
+  margin: 0.375rem 0 0;
   padding-left: 1.25rem;
 }
 
-.faq dt {
-  font-weight: 600;
-  margin-top: 1rem;
+.cta-pro-descarga {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  border: 1px solid var(--color-primario-borde);
+  border-radius: var(--radio);
+  background: var(--color-primario-suave);
 }
 
-.faq dd {
-  margin-left: 0;
-  color: var(--color-texto-suave);
+.cta-pro-descarga[hidden],
+.avisos[hidden] {
+  display: none;
+}
+
+.cta-pro-descarga a {
+  flex: 1;
+  font-weight: 600;
+}
+
+.cta-pro-descarga button {
+  width: var(--tactil);
+  padding: 0;
+  background: transparent;
+  color: var(--color-texto-2);
+  font-size: 1.375rem;
+}
+
+.cta-pro-descarga button:hover {
+  background: rgba(255, 255, 255, 0.7);
 }
 
 /* ---------- Formulario ---------- */
 
+#zona-formulario {
+  container-type: inline-size;
+}
+
+.formulario-factura {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  counter-reset: paso;
+}
+
 .formulario-factura fieldset {
+  counter-increment: paso;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.875rem 1rem;
+  min-width: 0;
+  margin: 0;
+  padding: 3.5rem 1.125rem 1.25rem;
+  position: relative;
   border: 1px solid var(--color-borde);
-  border-radius: var(--radio);
-  margin: 0 0 1rem;
-  padding: 0.75rem 1rem 1rem;
+  border-radius: var(--radio-l);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra);
 }
 
 .formulario-factura legend {
-  padding: 0 0.375rem;
-  font-weight: 600;
+  position: absolute;
+  top: 1.125rem;
+  left: 1.125rem;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0;
+  font-family: var(--fuente-titulo);
+  font-size: 1rem;
+  font-weight: 650;
   color: var(--color-texto);
+}
+
+.formulario-factura legend::before {
+  content: counter(paso);
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: var(--color-primario-suave);
+  color: var(--color-primario);
+  font-size: 0.8125rem;
+  font-weight: 700;
 }
 
 .campo {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 0.75rem;
+  gap: 0.375rem;
+  min-width: 0;
+  margin: 0;
 }
 
-.campo label {
-  font-size: 0.875rem;
-  color: var(--color-texto-suave);
+.campo label,
+.pro-campo label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-texto-2);
 }
 
 .campo input,
-.campo select {
-  padding: 0.5rem 0.625rem;
+.campo select,
+.pro-campo input[type="text"] {
+  width: 100%;
+  min-height: var(--tactil);
+  padding: 0.5625rem 0.75rem;
+  font: inherit;
   font-size: 1rem;
-  border: 1px solid var(--color-borde);
-  border-radius: 0.375rem;
-  background: var(--color-superficie);
+  line-height: 1.4;
   color: var(--color-texto);
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde-fuerte);
+  border-radius: 10px;
+  box-shadow: var(--sombra-s);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.campo input[type="date"] {
+  min-height: var(--tactil);
+}
+
+.campo input::placeholder,
+.pro-campo input::placeholder {
+  color: var(--color-placeholder);
+  opacity: 1;
+}
+
+.campo select {
+  padding-right: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2355627a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.625rem center;
+  background-size: 1.125rem;
+  cursor: pointer;
+}
+
+.campo input:hover,
+.campo select:hover,
+.pro-campo input[type="text"]:hover {
+  border-color: #94a3b8;
+}
+
+.campo input:focus,
+.campo select:focus,
+.pro-campo input[type="text"]:focus {
+  outline: none;
+  border-color: var(--color-primario);
+  box-shadow: var(--anillo-foco);
 }
 
 .campo input.nif-valido {
@@ -151,43 +646,180 @@ a {
   border-color: var(--color-peligro);
 }
 
+.campo input.nif-invalido:focus {
+  box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.2);
+}
+
+.nif-mensaje {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.nif-mensaje:empty {
+  display: none;
+}
+
+.campo:has(.nif-valido) .nif-mensaje {
+  color: var(--color-exito);
+}
+
+.campo:has(.nif-invalido) .nif-mensaje {
+  color: var(--color-peligro);
+}
+
+/* Rejilla de campos según el ancho disponible del formulario */
+@container (min-width: 30rem) {
+  .formulario-factura fieldset {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .formulario-factura fieldset:nth-of-type(2) > .campo:nth-of-type(3) {
+    grid-column: 1 / -1;
+  }
+
+  .formulario-factura fieldset:nth-of-type(3) > .campo:last-of-type {
+    grid-column: 1 / -1;
+  }
+
+  .formulario-factura fieldset:nth-of-type(4) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container (min-width: 36rem) {
+  .formulario-factura fieldset:nth-of-type(3) {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .formulario-factura fieldset:nth-of-type(3) > .campo {
+    grid-column: span 2;
+  }
+
+  .formulario-factura fieldset:nth-of-type(3) > .campo:nth-of-type(4) {
+    grid-column: span 4;
+  }
+
+  .formulario-factura fieldset:nth-of-type(3) > .campo:last-of-type {
+    grid-column: span 2;
+  }
+}
+
+/* Líneas de factura */
 .lineas-factura {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  counter-reset: linea;
+}
+
+.linea-factura {
+  counter-increment: linea;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  background: var(--color-superficie-2);
+}
+
+.linea-factura > .campo:first-child,
+.linea-factura > .campo:has(datalist) {
+  grid-column: 1 / -1;
+}
+
+.linea-factura > button[type="button"] {
+  grid-column: 1 / -1;
+  justify-self: end;
+}
+
+@container (min-width: 34rem) {
+  .linea-factura {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.formulario-factura button[type="button"] {
+  background: var(--color-superficie);
+  color: var(--color-primario);
+  border: 1px dashed var(--color-primario-borde);
+}
+
+.formulario-factura button[type="button"]:hover {
+  background: var(--color-primario-suave);
+  border-color: var(--color-primario);
+}
+
+.formulario-factura fieldset > button[type="button"] {
+  width: 100%;
+}
+
+.formulario-factura fieldset > button[type="button"]::before {
+  content: "+";
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.linea-factura button[type="button"] {
+  min-height: var(--tactil);
+  padding: 0 0.875rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-peligro);
+  font-size: 0.875rem;
+}
+
+.linea-factura button[type="button"]:hover {
+  background: var(--color-peligro-suave);
+  border-color: #fecdca;
+}
+
+/* ---------- Historial ---------- */
+
+#zona-historial,
+#zona-pro {
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-l);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra);
+  padding: 1.125rem;
+}
+
+.historial {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.linea-factura {
-  border: 1px solid var(--color-borde);
-  border-radius: var(--radio);
-  padding: 0.75rem;
-  background: var(--color-fondo);
-}
-
-.formulario-factura button[type="button"] {
-  padding: 0.5rem 0.875rem;
-  font-size: 0.9375rem;
-  border-radius: 0.375rem;
-  border: 1px solid var(--color-borde);
-  background: var(--color-superficie);
-  color: var(--color-primario);
-  cursor: pointer;
-}
-
-.formulario-factura button[type="button"]:hover {
-  background: var(--color-fondo);
-}
-
-.linea-factura button[type="button"] {
-  color: var(--color-peligro);
-}
-
-/* ---------- Historial ---------- */
-
 .historial-contador {
-  font-size: 0.875rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.375rem 1rem;
+  font-size: 0.8125rem;
   color: var(--color-texto-suave);
-  margin-bottom: 0.5rem;
+}
+
+.historial-contador strong {
+  color: var(--color-texto);
+}
+
+.historial-progreso {
+  grid-column: 1 / -1;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-borde);
+  overflow: hidden;
+}
+
+.historial-progreso span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-primario);
 }
 
 .historial-lista {
@@ -199,71 +831,217 @@ a {
   gap: 0.5rem;
 }
 
-.historial-item {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.25rem 0.5rem;
-  padding: 0.5rem 0.625rem;
-  border: 1px solid var(--color-borde);
-  border-radius: 0.375rem;
+.historial-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1.25rem 1rem;
+  border: 1px dashed var(--color-borde-fuerte);
+  border-radius: var(--radio);
+  text-align: center;
+  font-size: 0.9375rem;
+  color: var(--color-texto-suave);
 }
 
-.historial-numero {
+.historial-vacio strong {
+  color: var(--color-texto);
   font-weight: 600;
 }
 
-.historial-cliente,
+.historial-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.125rem 0.75rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  background: var(--color-superficie);
+}
+
+.historial-numero {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.historial-cliente {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  color: var(--color-texto-2);
+  font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .historial-fecha {
   color: var(--color-texto-suave);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 
-.historial-cargar,
-.historial-duplicar,
-.historial-borrar {
-  padding: 0.375rem 0.625rem;
+.historial-acciones {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+}
+
+.historial-acciones button {
+  flex: 1;
+  padding: 0 0.75rem;
   font-size: 0.875rem;
-  border-radius: 0.375rem;
-  border: 1px solid var(--color-borde);
   background: var(--color-superficie);
-  cursor: pointer;
+  border: 1px solid var(--color-borde-fuerte);
+  color: var(--color-texto-2);
 }
 
-.historial-cargar {
+.historial-acciones button:hover {
+  background: var(--color-superficie-2);
+}
+
+.historial-acciones .historial-cargar {
   color: var(--color-primario);
 }
 
-.historial-borrar {
+.historial-acciones .historial-borrar {
   color: var(--color-peligro);
 }
 
+.historial-acciones .historial-borrar:hover {
+  background: var(--color-peligro-suave);
+  border-color: #fecdca;
+}
+
 .historial-cta-pro {
-  display: block;
-  margin-top: 0.75rem;
-  padding: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tactil);
+  padding: 0.625rem 1rem;
   text-align: center;
-  border-radius: 0.375rem;
-  background: var(--color-fondo);
-  border: 1px dashed var(--color-borde);
+  border-radius: var(--radio);
+  background: var(--color-primario-suave);
+  border: 1px solid var(--color-primario-borde);
   text-decoration: none;
   font-weight: 600;
 }
 
-.historial-lista:empty {
-  display: none;
-}
-
 /* ---------- Sección Pro ---------- */
+
+#zona-pro {
+  position: relative;
+  overflow: hidden;
+  border-color: var(--color-primario-borde);
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(99, 102, 241, 0.1), transparent 60%),
+    var(--color-superficie);
+}
 
 .seccion-pro {
   display: flex;
   flex-direction: column;
+  gap: 0.875rem;
+}
+
+.pro-cab {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
   gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pro-titulo {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
 }
 
 .pro-estado {
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
   margin: 0;
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+  background: var(--color-superficie-2);
+  border: 1px solid var(--color-borde);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-texto-suave);
+}
+
+.pro-estado.es-pro {
+  background: var(--color-exito-suave);
+  border-color: #abefc6;
+  color: var(--color-exito);
+}
+
+.pro-valor {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.pro-beneficios {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.375rem 1rem;
+  font-size: 0.9375rem;
+  color: var(--color-texto-2);
+}
+
+.pro-beneficios li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pro-beneficios li::before {
+  content: "";
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--color-primario-suave) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%234338ca' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 10.5 2.5 2.5 5.5-6'/%3E%3C/svg%3E") center / 0.875rem no-repeat;
+}
+
+.pro-precio {
+  margin: 0;
+  font-family: var(--fuente-titulo);
+  font-size: 1.5rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  color: var(--color-texto);
+}
+
+.pro-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.pro-activar {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pro-activar input {
+  flex: 1;
+  min-width: 0;
+}
+
+.seccion-pro button {
+  background: var(--color-texto);
+  color: #fff;
+}
+
+.seccion-pro button:hover {
+  background: #1e293b;
 }
 
 .pro-mensaje {
@@ -272,11 +1050,32 @@ a {
   margin: 0;
 }
 
+.pro-mensaje:empty {
+  display: none;
+}
+
+.pro-proximamente {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-texto-suave);
+}
+
 .pro-acento,
 .pro-logo {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  font-size: 0.9375rem;
+}
+
+.pro-acento input[type="color"] {
+  width: var(--tactil);
+  height: var(--tactil);
+  padding: 2px;
+  border: 1px solid var(--color-borde-fuerte);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
 }
 
 .pro-datos {
@@ -287,251 +1086,769 @@ a {
 }
 
 .pro-afiliado {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tactil);
   font-size: 0.875rem;
   color: var(--color-texto-suave);
 }
 
-/* ---------- Barra total: fija en la parte inferior en móvil ---------- */
+/* ---------- Barra de acciones: fija abajo en móvil ---------- */
+
 .barra-total {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 10;
-  display: flex;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "total nueva"
+    "guardar pdf";
   gap: 0.5rem;
   align-items: center;
-  padding: 0.5rem 1rem;
-  min-height: var(--altura-barra-total);
-  background: var(--color-superficie);
+  padding: 0.625rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: saturate(1.4) blur(10px);
   border-top: 1px solid var(--color-borde);
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 -8px 24px -12px rgba(15, 23, 42, 0.18);
 }
 
 .barra-total-importe {
+  grid-area: total;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.barra-total-etiqueta {
+  font-size: 0.75rem;
   font-weight: 600;
-  margin-right: auto;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-texto-suave);
+}
+
+.barra-total-cifra {
+  font-family: var(--fuente-titulo);
+  font-size: 1.375rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-texto);
+  white-space: nowrap;
+}
+
+.barra-total .btn-fantasma {
+  grid-area: nueva;
+  justify-self: end;
+  padding: 0 0.75rem;
+}
+
+#btn-guardar {
+  grid-area: guardar;
+}
+
+#btn-descargar {
+  grid-area: pdf;
 }
 
 .barra-total button {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  border-radius: 0.375rem;
+  width: 100%;
+}
+
+.barra-total .btn-fantasma {
+  width: auto;
+}
+
+/* ---------- Vista previa ---------- */
+
+.app-col-vista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.vista-cab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-texto-suave);
+}
+
+.vista-punto {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #12b76a;
+  box-shadow: 0 0 0 3px rgba(18, 183, 106, 0.18);
+}
+
+.vista-chip {
+  margin-left: auto;
+  padding: 0.0625rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--color-borde-fuerte);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  color: var(--color-texto-suave);
+}
+
+#zona-vista {
+  container-type: inline-size;
+  padding: clamp(0.5rem, 2.5vw, 1.5rem);
+  border-radius: var(--radio-l);
+  background: #e9edf3;
   border: 1px solid var(--color-borde);
-  background: var(--color-primario);
-  color: #fff;
-  cursor: pointer;
 }
 
-.barra-total button:hover {
-  background: var(--color-primario-oscuro);
-}
-
-/* ---------- Vista previa de la factura (folio A4) ---------- */
+/* ---------- Folio de factura (A4) ---------- */
 
 .factura-print {
-  --color-acento: #2563eb;
+  --color-acento: #4338ca;
+  --tinta: #111827;
+  --tinta-2: #4b5563;
+  --tinta-3: #6b7280;
+  --linea: #e5e7eb;
+  position: relative;
   background: #ffffff;
-  color: #111318;
-  max-width: 21cm;
-  min-height: 20cm;
+  color: var(--tinta);
+  width: 100%;
+  aspect-ratio: 210 / 297;
   margin: 0 auto;
-  padding: 1.5cm;
-  border-radius: 0.25rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  font-size: 0.9375rem;
+  padding: 4.15em 3.9em 3.4em;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 12px 32px -8px rgba(15, 23, 42, 0.22);
+  font-size: clamp(9px, 2.05cqi, 14px);
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  overflow-wrap: anywhere;
+}
+
+.factura-print::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 0.45em;
+  min-height: 4px;
+  background: var(--color-acento);
+  border-radius: 4px 4px 0 0;
+}
+
+.factura-print h1,
+.factura-print h2,
+.factura-print h3 {
+  color: var(--tinta);
+  letter-spacing: -0.01em;
 }
 
 .factura-logo {
-  max-height: 4rem;
+  max-height: 3.5em;
+  max-width: 12em;
   object-fit: contain;
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75em;
 }
 
 .factura-cabecera {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 1rem;
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
-  border-bottom: 4px solid var(--color-acento);
+  align-items: flex-start;
+  gap: 1.5em;
+  padding-bottom: 1.5em;
+  margin-bottom: 1.5em;
+  border-bottom: 1px solid var(--linea);
 }
 
-.factura-cabecera h1 {
-  margin: 0 0 0.25rem;
-  color: var(--color-acento);
+.factura-emisor {
+  min-width: 0;
 }
 
 .factura-emisor h2 {
-  margin: 0 0 0.25rem;
+  margin: 0 0 0.25em;
+  font-size: 1.35em;
+  font-weight: 700;
 }
 
 .factura-emisor p,
+.factura-cliente p,
 .factura-datos p {
   margin: 0;
-  color: #4b5563;
-  font-size: 0.875rem;
+  color: var(--tinta-2);
 }
 
 .factura-datos {
   text-align: right;
+  flex-shrink: 0;
+}
+
+.factura-titulo {
+  margin: 0 0 0.5em;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1em;
+}
+
+.factura-etiqueta {
+  font-size: 0.8em;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-acento);
+}
+
+.factura-numero {
+  font-size: 1.6em;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.factura-datos p {
+  font-size: 0.95em;
+}
+
+.factura-datos p span {
+  color: var(--tinta-3);
 }
 
 .factura-cliente {
-  margin-bottom: 1rem;
+  margin-bottom: 1.75em;
 }
 
 .factura-cliente h3 {
-  margin: 0 0 0.25rem;
+  margin: 0 0 0.4em;
   text-transform: uppercase;
-  font-size: 0.8125rem;
-  letter-spacing: 0.03em;
-  color: #6b7280;
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--tinta-3);
 }
 
-.factura-cliente p {
-  margin: 0;
+.factura-cliente .factura-cliente-nombre {
+  color: var(--tinta);
+  font-weight: 650;
+  font-size: 1.1em;
+}
+
+.factura-vacio {
+  color: #8f97a6;
+  font-style: italic;
+  font-weight: 400;
 }
 
 .factura-lineas,
 .factura-desglose-iva {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 1rem;
-  display: block;
-  overflow-x: auto;
-  white-space: nowrap;
-}
-
-.factura-lineas thead,
-.factura-desglose-iva thead {
-  background: var(--color-acento);
+  margin-bottom: 1.25em;
+  font-variant-numeric: tabular-nums;
 }
 
 .factura-lineas th,
 .factura-desglose-iva th {
-  color: #ffffff;
+  padding: 0 0.6em 0.6em;
+  border-bottom: 1.5px solid var(--tinta);
+  color: var(--tinta-3);
   text-align: left;
-  padding: 0.5rem 0.625rem;
-  font-size: 0.8125rem;
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .factura-lineas td,
 .factura-desglose-iva td {
-  padding: 0.5rem 0.625rem;
-  border-bottom: 1px solid #e5e7eb;
-  font-size: 0.875rem;
+  padding: 0.75em 0.6em;
+  border-bottom: 1px solid var(--linea);
+  vertical-align: top;
+}
+
+.factura-lineas th:first-child,
+.factura-lineas td:first-child,
+.factura-desglose-iva th:first-child,
+.factura-desglose-iva td:first-child {
+  padding-left: 0;
+}
+
+.factura-lineas th:last-child,
+.factura-lineas td:last-child,
+.factura-desglose-iva th:last-child,
+.factura-desglose-iva td:last-child {
+  padding-right: 0;
+}
+
+.factura-lineas th:not(:first-child),
+.factura-lineas td:not(:first-child),
+.factura-desglose-iva th:not(:first-child),
+.factura-desglose-iva td:not(:first-child) {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.factura-lineas td:first-child {
+  width: 100%;
+  color: var(--tinta);
+  font-weight: 500;
+}
+
+.factura-lineas td:last-child {
+  font-weight: 600;
+}
+
+.factura-resumen {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2em;
+  margin-top: 0.5em;
+}
+
+.factura-resumen-izq {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.factura-desglose-iva {
+  font-size: 0.9em;
+  color: var(--tinta-2);
+  margin-bottom: 0.75em;
+}
+
+.factura-desglose-iva th {
+  border-bottom-width: 1px;
+  border-bottom-color: var(--linea);
 }
 
 .factura-motivo-exencion {
-  font-size: 0.8125rem;
-  color: #6b7280;
-  margin: 0 0 1rem;
+  font-size: 0.85em;
+  color: var(--tinta-3);
+  margin: 0 0 0.5em;
 }
 
 .factura-totales {
+  flex: 0 0 auto;
+  width: 42%;
+  min-width: 14em;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 0.375rem;
-  margin-bottom: 1rem;
+  gap: 0.45em;
 }
 
 .factura-linea-total {
   display: flex;
   justify-content: space-between;
-  gap: 1.5rem;
-  width: 100%;
-  max-width: 18rem;
-  font-size: 0.9375rem;
+  gap: 1.5em;
+  color: var(--tinta-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.factura-linea-total span:last-child {
+  color: var(--tinta);
+  white-space: nowrap;
 }
 
 .factura-total-destacado {
   display: flex;
   justify-content: space-between;
-  gap: 1.5rem;
-  width: 100%;
-  max-width: 18rem;
-  padding-top: 0.5rem;
-  margin-top: 0.25rem;
+  align-items: baseline;
+  gap: 1.5em;
+  margin-top: 0.4em;
+  padding: 0.7em 0.9em;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-acento) 8%, #ffffff);
   border-top: 2px solid var(--color-acento);
-  font-size: 1.375rem;
-  font-weight: 700;
+  font-size: 1.2em;
+  font-weight: 750;
+  color: var(--tinta);
+  font-variant-numeric: tabular-nums;
+}
+
+.factura-total-destacado span:first-child {
+  font-size: 0.7em;
+  letter-spacing: 0.14em;
   color: var(--color-acento);
 }
 
+.factura-total-destacado span:last-child {
+  white-space: nowrap;
+}
+
 .factura-pago {
-  font-size: 0.875rem;
-  color: #4b5563;
+  margin-top: 1.75em;
+  font-size: 0.95em;
+  color: var(--tinta-2);
+}
+
+.factura-pago:empty {
+  display: none;
+}
+
+.factura-pago h3 {
+  margin: 0 0 0.35em;
+  text-transform: uppercase;
+  font-size: 0.78em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--tinta-3);
 }
 
 .factura-iban,
 .factura-forma-pago {
-  margin: 0.25rem 0;
+  margin: 0.15em 0;
 }
 
 .factura-marca {
-  margin-top: 1.5rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #e5e7eb;
+  margin-top: auto;
+  padding-top: 1em;
+  border-top: 1px solid var(--linea);
   text-align: center;
-  font-size: 0.75rem;
+  font-size: 0.78em;
   color: #9ca3af;
 }
 
-/* ---------- Responsive: escritorio ancho, formulario y vista lado a lado ---------- */
-
-@media (min-width: 48rem) {
-  .barra-total {
-    position: sticky;
-    justify-content: flex-end;
+@container (max-width: 26rem) {
+  .factura-print {
+    aspect-ratio: auto;
+    min-height: 0;
+    padding: 1.5rem 1.125rem 1.25rem;
+    font-size: 11.5px;
   }
 
-  .barra-total button {
-    flex: none;
+  .factura-cabecera {
+    flex-direction: column;
+    gap: 1em;
+  }
+
+  .factura-datos {
+    text-align: left;
+  }
+
+  .factura-titulo {
+    align-items: flex-start;
+  }
+
+  .factura-resumen {
+    flex-direction: column-reverse;
+    gap: 1em;
+  }
+
+  .factura-totales {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .factura-resumen-izq {
+    width: 100%;
+  }
+
+  .factura-marca {
+    margin-top: 1.5em;
+  }
+}
+
+/* ---------- Guía, aviso legal y pie ---------- */
+
+.guia {
+  padding-top: 1.5rem;
+  padding-bottom: 3rem;
+}
+
+.aviso-legal {
+  display: flex;
+  gap: 0.875rem;
+  max-width: 50rem;
+  margin: 0 auto 2.5rem;
+  padding: 1rem 1.125rem;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  background: var(--color-superficie);
+}
+
+.aviso-legal > svg {
+  color: var(--color-texto-suave);
+  margin-top: 0.125rem;
+}
+
+.aviso-legal h2 {
+  margin: 0 0 0.25rem;
+  font-size: 0.9375rem;
+}
+
+.aviso-legal p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-texto-suave);
+}
+
+.contenido-seo {
+  max-width: 50rem;
+  margin: 0 auto;
+  color: var(--color-texto-2);
+}
+
+.contenido-seo h2 {
+  margin: 2.5rem 0 1rem;
+  font-size: clamp(1.375rem, 1.2rem + 0.8vw, 1.75rem);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+
+.contenido-seo h2:first-child {
+  margin-top: 0;
+}
+
+.contenido-seo h3 {
+  margin: 1.75rem 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 650;
+}
+
+.contenido-seo p {
+  margin: 0 0 0.75rem;
+}
+
+.contenido-seo ul {
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+}
+
+.contenido-seo li {
+  margin-bottom: 0.25rem;
+}
+
+.contenido-seo li::marker {
+  color: var(--color-primario);
+}
+
+.contenido-seo strong {
+  color: var(--color-texto);
+}
+
+.faq {
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.faq dt {
+  margin: 0.25rem 0 0;
+  padding: 1rem 1.125rem 0.25rem;
+  border: 1px solid var(--color-borde);
+  border-bottom: 0;
+  border-radius: var(--radio) var(--radio) 0 0;
+  background: var(--color-superficie);
+  font-weight: 650;
+  color: var(--color-texto);
+}
+
+.faq dd {
+  margin: -0.75rem 0 0;
+  padding: 0.25rem 1.125rem 1rem;
+  border: 1px solid var(--color-borde);
+  border-top: 0;
+  border-radius: 0 0 var(--radio) var(--radio);
+  background: var(--color-superficie);
+  color: var(--color-texto-suave);
+  font-size: 0.9375rem;
+}
+
+.pie {
+  border-top: 1px solid var(--color-borde);
+  background: var(--color-superficie);
+}
+
+.pie-interior {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 1.75rem;
+  padding-bottom: 1.75rem;
+}
+
+.pie p {
+  margin: 0;
+  max-width: 50rem;
+  font-size: 0.8125rem;
+  color: var(--color-texto-suave);
+}
+
+.pie .pie-marca {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--color-texto);
+}
+
+.pie .marca-icono {
+  width: 22px;
+  height: 22px;
+}
+
+/* Ventajas compactas en pantallas estrechas: solo el titular, para llegar antes a la herramienta */
+@media (max-width: 47.99rem) {
+  .hero {
+    gap: 1rem;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .hero-sello {
+    margin-bottom: 0.75rem;
+  }
+
+  .ventajas {
+    gap: 0.5rem;
+  }
+
+  .ventajas li {
+    align-items: center;
+  }
+
+  .ventaja-desc {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .ventaja-icono {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9px;
+  }
+
+  .ventaja-icono svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* ---------- Tablet y escritorio ---------- */
+
+@media (min-width: 48rem) {
+  :root {
+    --altura-barra-total: 0rem;
+  }
+
+  .contenedor {
+    padding-inline: 1.5rem;
   }
 
   body {
-    padding-bottom: 1rem;
+    padding-bottom: 0;
+  }
+
+  .barra-total {
+    position: sticky;
+    bottom: 1rem;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 0.625rem 0.625rem 1.25rem;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-l);
+    box-shadow: var(--sombra-l);
+  }
+
+  .barra-total-importe {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.625rem;
+    margin-right: auto;
+  }
+
+  .barra-total button,
+  .barra-total .btn-fantasma {
+    width: auto;
   }
 
   .historial-item {
-    grid-template-columns: auto 1fr auto auto auto auto;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    gap: 0.75rem;
+  }
+
+  .historial-cliente {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .historial-acciones {
+    grid-column: auto;
+    margin-top: 0;
+  }
+
+  .historial-acciones button {
+    flex: none;
+  }
+
+  .hero {
+    padding-top: 2.5rem;
+    padding-bottom: 2rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .hero {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
     align-items: center;
+    gap: 3rem;
+  }
+
+  .ventajas {
+    padding: 1rem 1.125rem;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-l);
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: var(--sombra-s);
   }
 }
 
 @media (min-width: 1100px) {
   #app {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      "formulario vista"
-      "historial vista"
-      "pro vista";
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
     align-items: start;
+    gap: 1.5rem;
+  }
+
+  .app-col-form {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
+    min-width: 0;
   }
 
-  #zona-formulario {
-    grid-area: formulario;
-  }
-
-  #zona-vista {
-    grid-area: vista;
+  .app-col-vista {
     position: sticky;
     top: 1rem;
   }
 
-  #zona-historial {
-    grid-area: historial;
+  /* El folio A4 cabe entero en pantalla junto a la barra de acciones */
+  .factura-print {
+    width: min(100%, calc((100vh - 12.5rem) * 0.7071));
+    font-size: clamp(9px, min(2.05cqi, calc((100vh - 12.5rem) * 0.0145)), 14px);
   }
 
-  #zona-pro {
-    grid-area: pro;
+  .hero {
+    padding-top: 1.75rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .hero h1 {
+    font-size: 2.5rem;
   }
 }
 
@@ -548,17 +1865,28 @@ a {
     padding-bottom: 0;
   }
 
-  .cabecera,
+  .saltar,
+  .sitio-cab,
+  .hero,
+  .herramienta-cab,
+  .app-col-form,
+  .vista-cab,
   #ad-top,
   #ad-bottom,
+  #avisos,
+  .cta-pro-descarga,
   #zona-formulario,
   #zona-historial,
   #zona-pro,
   .barra-total,
-  .contenido-seo {
-    display: none;
+  .guia,
+  .aviso-legal,
+  .contenido-seo,
+  .pie {
+    display: none !important;
   }
 
+  .contenedor,
   #app {
     display: block;
     max-width: none;
@@ -566,7 +1894,13 @@ a {
     padding: 0;
   }
 
+  .app-col-vista {
+    display: block;
+    position: static;
+  }
+
   #zona-vista {
+    container-type: normal;
     background: none;
     border: none;
     border-radius: 0;
@@ -575,16 +1909,32 @@ a {
 
   .factura-print {
     box-shadow: none;
+    border-radius: 0;
     margin: 0;
     padding: 0;
     max-width: none;
     min-height: 0;
+    aspect-ratio: auto;
     width: 100%;
+    font-size: 10pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
-  .factura-lineas,
-  .factura-desglose-iva {
-    overflow-x: visible;
-    white-space: normal;
+  .factura-print::before {
+    display: none;
+  }
+
+  .factura-vacio {
+    visibility: hidden;
+  }
+
+  .factura-marca {
+    margin-top: 2em;
+  }
+
+  .factura-lineas tr,
+  .factura-resumen {
+    break-inside: avoid;
   }
 }

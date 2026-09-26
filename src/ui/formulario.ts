@@ -49,7 +49,8 @@ interface FilaLinea {
 function crearCampoTexto(
   contenedor: HTMLElement,
   etiqueta: string,
-  onChange: () => void
+  onChange: () => void,
+  placeholder?: string
 ): HTMLInputElement {
   const grupo = document.createElement('div');
   grupo.className = 'campo';
@@ -62,6 +63,9 @@ function crearCampoTexto(
   const input = document.createElement('input');
   input.type = 'text';
   input.id = id;
+  if (placeholder) {
+    input.placeholder = placeholder;
+  }
 
   grupo.appendChild(label);
   grupo.appendChild(input);
@@ -89,6 +93,7 @@ function crearCampoTextoConSugerencias(
   const input = document.createElement('input');
   input.type = 'text';
   input.id = id;
+  input.placeholder = 'Elige una sugerencia o escribe el motivo';
 
   const listaId = siguienteId('datalist');
   const datalist = document.createElement('datalist');
@@ -113,9 +118,10 @@ function crearCampoTextoConSugerencias(
 function crearCampoNumerico(
   contenedor: HTMLElement,
   etiqueta: string,
-  onChange: () => void
+  onChange: () => void,
+  placeholder?: string
 ): HTMLInputElement {
-  const input = crearCampoTexto(contenedor, etiqueta, onChange);
+  const input = crearCampoTexto(contenedor, etiqueta, onChange, placeholder);
   input.inputMode = 'decimal';
   return input;
 }
@@ -196,10 +202,14 @@ export function montarFormulario(root: HTMLElement, onChange: () => void): Formu
   seccionEmisor.appendChild(leyendaEmisor);
   form.appendChild(seccionEmisor);
 
-  const emisorNombre = crearCampoTexto(seccionEmisor, 'Nombre / Razón social', onChange);
-  const emisorNif = crearCampoTexto(seccionEmisor, 'NIF', onChange);
-  const emisorDireccion = crearCampoTexto(seccionEmisor, 'Dirección', onChange);
-  const emisorIban = crearCampoTexto(seccionEmisor, 'IBAN (opcional)', onChange);
+  const emisorNombre = crearCampoTexto(seccionEmisor, 'Nombre / Razón social', onChange, 'Tu nombre o el de tu empresa');
+  const emisorNif = crearCampoTexto(seccionEmisor, 'NIF', onChange, '12345678Z');
+  const emisorDireccion = crearCampoTexto(seccionEmisor, 'Dirección', onChange, 'Calle, número, CP y ciudad');
+  const emisorIban = crearCampoTexto(seccionEmisor, 'IBAN (opcional)', onChange, 'ES00 0000 0000 0000 0000 0000');
+  emisorNombre.autocomplete = 'organization';
+  emisorDireccion.autocomplete = 'street-address';
+  emisorNif.spellcheck = false;
+  emisorIban.spellcheck = false;
 
   const emisorNifMensaje = document.createElement('p');
   emisorNifMensaje.className = 'nif-mensaje';
@@ -233,9 +243,10 @@ export function montarFormulario(root: HTMLElement, onChange: () => void): Formu
   seccionCliente.appendChild(leyendaCliente);
   form.appendChild(seccionCliente);
 
-  const clienteNombre = crearCampoTexto(seccionCliente, 'Nombre / Razón social', onChange);
-  const clienteNif = crearCampoTexto(seccionCliente, 'NIF', onChange);
-  const clienteDireccion = crearCampoTexto(seccionCliente, 'Dirección', onChange);
+  const clienteNombre = crearCampoTexto(seccionCliente, 'Nombre / Razón social', onChange, '¿A quién facturas?');
+  const clienteNif = crearCampoTexto(seccionCliente, 'NIF', onChange, 'B12345678');
+  const clienteDireccion = crearCampoTexto(seccionCliente, 'Dirección', onChange, 'Dirección fiscal del cliente');
+  clienteNif.spellcheck = false;
 
   // --- Fechas y forma de pago ---
   const seccionDatos = document.createElement('fieldset');
@@ -247,7 +258,7 @@ export function montarFormulario(root: HTMLElement, onChange: () => void): Formu
   const fechaEmision = crearCampoFecha(seccionDatos, 'Fecha de emisión', onChange);
   const fechaVencimiento = crearCampoFecha(seccionDatos, 'Fecha de vencimiento', onChange);
   const fechaOperacion = crearCampoFecha(seccionDatos, 'Fecha de operación (opcional)', onChange);
-  const formaPago = crearCampoTexto(seccionDatos, 'Forma de pago (opcional)', onChange);
+  const formaPago = crearCampoTexto(seccionDatos, 'Forma de pago (opcional)', onChange, 'Transferencia, Bizum, efectivo…');
   const retencionIrpf = crearSelect(seccionDatos, 'IRPF', IRPF_OPCIONES, '%', onChange);
 
   // --- Líneas ---
@@ -267,9 +278,9 @@ export function montarFormulario(root: HTMLElement, onChange: () => void): Formu
     const wrapper = document.createElement('div');
     wrapper.className = 'linea-factura';
 
-    const concepto = crearCampoTexto(wrapper, 'Concepto', onChange);
-    const cantidad = crearCampoNumerico(wrapper, 'Cantidad', onChange);
-    const precioUnitario = crearCampoNumerico(wrapper, 'Precio unitario', onChange);
+    const concepto = crearCampoTexto(wrapper, 'Concepto', onChange, 'Ej.: Diseño de logotipo');
+    const cantidad = crearCampoNumerico(wrapper, 'Cantidad', onChange, '1');
+    const precioUnitario = crearCampoNumerico(wrapper, 'Precio unitario', onChange, '0,00 €');
     const ivaPct = crearSelect(wrapper, 'IVA', IVA_OPCIONES, '%', onChange, { 0: 'Exenta/No sujeta' });
     // El caso comun del autonomo es el 21%: una linea nueva NO debe nacer "Exenta" (ademas
     // dispararia el campo de motivo de exencion sin que el usuario haya elegido nada).
